@@ -1,0 +1,50 @@
+DB muss separat gestartet werden. Siehe MongoDB
+
+AppServer starten mit 
+> node server.js
+
+React Frontend starten mit
+> npm start
+
+####### Todos #######
+
+current: - display phase + groups + matches
+
+- create controls for matches
+    - set scores
+    - set teams
+
+- create filter
+    - for matches list view
+
+- create overview of all games
+    - group into rounds and groups
+        - create controls for rounds
+
+- create new class field in order to assign matches to fields
+    - extend matches
+
+- create qr codes with link to management-match-view
+
+- tournament overview / leaderboard
+- add times to matches and/or leaderboards
+
+- rename "team" to "participant"
+- include typescript
+
+- create tournament class for persistence
+    - extend team/participant with tournament id
+
+- display team stats
+    - points, wins, games, ...
+    
+- create controls for groups
+- expand controls for teams
+
+- numbers in sets saved as strings
+
+- internationalization
+
+- ! bring website online
+
+- add authentication
