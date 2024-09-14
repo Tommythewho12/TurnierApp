@@ -1,0 +1,44 @@
+// Online Javascript Editor for free
+// Write, Edit and Run your Javascript code using JS Online Compiler
+
+console.log("Try programiz.pro");
+
+let teams = new Set();
+
+groups = [
+        {
+            _id: "group1",
+            number: 1,
+            teams: [{_id: "team1", name: "Team_1"},
+                    {_id: "team2", name: "Team_2"},
+                    {_id: "team3", name: "Team_3"}],
+            matchs: [{
+                        _id: "match1",
+                        group: "group1",
+                        order: 1, 
+                        homeTeam: "team1", 
+                        guestTeam: "team2",
+                        sets: [{scoreHome: 25, scoreGuest: 0},{scoreHome: 25, scoreGuest: 0},{scoreHome: 25, scoreGuest: 0}]
+            }]
+        }
+    ]
+
+const sumUp = () => {
+    console.log(groups);
+    groups.forEach(group => {
+        group.teams.forEach(team => {
+            teams.add(team);
+        })
+        group.matchs.forEach(match => {
+            let homeScore = 0, guestScore = 0;
+            match.sets.forEach(set => {
+                homeScore += set.scoreHome;
+                guestScore += set.scoreGuest;
+            });
+            teams
+        });
+    });
+    console.log(teams);
+}
+
+sumUp();
