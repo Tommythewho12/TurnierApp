@@ -1,0 +1,28 @@
+{
+  "name": "printencup-website",
+  "version": "1.0.0",
+  "description": "website for the aachen printen cup",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "mongodb",
+    "rest",
+    "api",
+    "printen",
+    "cup"
+  ],
+  "author": "kingwaffle",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "bootstrap": "^5.3.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.3",
+    "react-router-dom": "^6.26.1"
+  }
+}
