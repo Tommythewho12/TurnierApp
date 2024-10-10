@@ -3,13 +3,17 @@ const Phase = db.phases;
 
 exports.create = (req, res) => {
     // Validate request
-    if (!req.body.order) {
-        res.status(400).send({ message: "You must specify order!" });
+    if (!req.body.tournamentId && !req.body.order) {
+        res.status(400).send({ message: "You must specify tournamentId and order!" });
         return;
     }
 
     // Create a Phase
-    const phase = new Phase({ order: req.body.order });
+    const phase = new Phase({
+        tournament: req.body.tournamentId,
+        order: req.body.order
+    });
+
     phase
         .save(phase)
         .then(data => { res.send(data); })
@@ -48,6 +52,23 @@ exports.findOne = (req, res) => {
             res
                 .status(500)
                 .send({ message: "Error retrieving Phase with id=" + id });
+        });
+};
+
+// Find a single Phase with a tournamentId
+exports.findOneByTournamentId = (req, res) => {
+    const id = req.params.tournamentId;
+
+    Phase.findById({tournament: id})
+        .then(data => {
+            if (!data)
+                res.status(404).send({ message: "Not found Phase with tournamentId " + id });
+            else res.send(data);
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .send({ message: "Error retrieving Phase with tournamentId=" + id });
         });
 };
 

@@ -12,7 +12,7 @@ React Frontend starten mit
 - views
     - group (done)
     - tree/tournament
-    - timetable <============ in progress <============
+    - timetable
 
 - create controls for matches/groups/rounds
     - set scores
@@ -23,6 +23,7 @@ React Frontend starten mit
         - extend matches
     - import typescript to code
     - rename "team" to "participant"
+    - matches must accomodate either a team or a reference to the winner/loser of another match <============ in progress <============
 
 - new features
     - add times to matches
@@ -37,6 +38,7 @@ React Frontend starten mit
     - put app on raspberryPi3
 
 ???
-    - create tournament class for persistence
+    - create tournament class for persistence (done)
+        - extend phase with tournamentId (done)
         - extend team/participant with tournament id
     - numbers in sets saved as strings

@@ -12,6 +12,9 @@ module.exports = app => {
     // Retrieve a single Phase with id
     router.get("/:id", phases.findOne);
   
+    // Retrieve a single Phase with tournamentId
+    router.get("/tournament/:tournamentId", phases.findOne);
+  
     // Update a Phase with id
     router.put("/:id", phases.update);
   

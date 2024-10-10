@@ -3,7 +3,7 @@ module.exports = mongoose => {
         "phase",
         mongoose.Schema(
             {
-                // tournament: { type: mongoose.Schema.Types.ObjectId, ref: "tournament" },
+                tournament: { type: mongoose.Schema.Types.ObjectId, ref: "tournament" },
                 order: Number
                 // time: someTime
             }
