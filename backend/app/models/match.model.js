@@ -5,8 +5,8 @@ module.exports = mongoose => {
             {
                 group: { type: mongoose.Schema.Types.ObjectId, ref: "group" },
                 order: Number,
-                homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
-                guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
+                homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "teamReference" },
+                guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "teamReference" },
                 sets: []
                 // homeTeamLabel: String
                 // guestTeamLabel: String

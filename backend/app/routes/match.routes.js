@@ -8,12 +8,12 @@ module.exports = app => {
   
     // Retrieve all Matchs
     router.get("/", matchs.findAll);
+
+    // Retrieve all Matchs linked to Group
+    router.get("/group/:groupId", matchs.findAllByGroupId);
   
     // Retrieve a single Match with id
     router.get("/:id", matchs.findOne);
-
-    // Retrieve all Matchs linked to Group
-    router.get("/WithGroup/:groupId", matchs.findAllByGroupId);
   
     // Update a Match with id
     router.put("/:id", matchs.update);

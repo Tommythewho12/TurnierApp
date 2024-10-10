@@ -38,6 +38,21 @@ exports.findAll = (req, res) => {
         });
 };
 
+// Find Groups linked to Phase with id phaseId
+exports.findAllByPhaseId = (req, res) => {
+    const id = req.params.phaseId;
+    Group.find({ phase: id })
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving Groups."
+            });
+        });
+};
+
 // Find a single Group with an id
 exports.findOne = (req, res) => {
     const id = req.params.id;
@@ -115,21 +130,6 @@ exports.deleteAll = (req, res) => {
             res.status(500).send({
                 message:
                     err.message || "Some error occurred while removing all Groups."
-            });
-        });
-};
-
-// Find Groups linked to Phase with id phaseId
-exports.findAllByPhaseId = (req, res) => {
-    const id = req.params.phaseId;
-    Group.find({ phase: id })
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving tutorials."
             });
         });
 };

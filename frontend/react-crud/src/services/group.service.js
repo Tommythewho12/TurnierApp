@@ -2,7 +2,7 @@ import http from "../http-common";
 
 class GroupDataService {
     getAll() {
-        return http.get("/groups");
+        return http.get(`/groups`);
     }
 
     get(id) {
@@ -10,11 +10,11 @@ class GroupDataService {
     }
 
     getByPhaseId(phaseId) {
-        return http.get(`/groups/WithPhase/${phaseId}`);
+        return http.get(`/groups/phase/${phaseId}`);
     }
 
     create(data) {
-        return http.post("/groups", data);
+        return http.post(`/groups`, data);
     }
 
     update(id, data) {

@@ -10,7 +10,7 @@ class MatchDataService {
     }
 
     getByGroupId(groupId) {
-        return http.get(`/matchs/WithGroup/${groupId}`);
+        return http.get(`/matchs/group/${groupId}`);
     }
 
     create(data) {

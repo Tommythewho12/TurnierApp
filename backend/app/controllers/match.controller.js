@@ -45,6 +45,23 @@ exports.findAll = (req, res) => {
         });
 };
 
+// Find Matchs linked to Group with id groupId
+exports.findAllByGroupId = (req, res) => {
+    const id = req.params.groupId;
+    Match.find({ group: id })
+        .populate("homeTeam")
+        .populate("guestTeam")
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving tutorials."
+            });
+        });
+};
+
 // Find a single Match with an id
 exports.findOne = (req, res) => {
     const id = req.params.id;
@@ -158,23 +175,6 @@ exports.deleteAll = (req, res) => {
             res.status(500).send({
                 message:
                     err.message || "Some error occurred while removing all Matchs."
-            });
-        });
-};
-
-// Find Matchs linked to Group with id groupId
-exports.findAllByGroupId = (req, res) => {
-    const id = req.params.groupId;
-    Match.find({ group: id })
-        .populate("homeTeam")
-        .populate("guestTeam")
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving tutorials."
             });
         });
 };
