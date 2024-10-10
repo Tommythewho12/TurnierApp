@@ -7,7 +7,7 @@ module.exports = mongoose => {
                 order: Number,
                 homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
                 guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
-                sets: [],
+                sets: []
                 // homeTeamLabel: String
                 // guestTeamLabel: String
                 // field: String, 

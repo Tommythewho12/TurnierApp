@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import GroupDataService from "../services/group.service.js";
 import MatchDataService from "../services/match.service.js";
-import { Link } from "react-router-dom";
 import { withRouter } from '../common/with-router';
 
 class Team {

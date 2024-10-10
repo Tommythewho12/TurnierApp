@@ -21,7 +21,6 @@ export default class MatchsList extends Component {
                 this.setState({
                     matchs: response.data
                 });
-                console.log(response.data);
             })
             .catch(e => {
                 console.log(e);

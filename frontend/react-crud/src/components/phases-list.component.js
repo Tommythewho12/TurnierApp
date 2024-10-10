@@ -22,7 +22,6 @@ export default class PhasesList extends Component {
                 this.setState({
                     phases: response.data
                 });
-                console.log(response.data);
             })
             .catch(e => {
                 console.log(e);
