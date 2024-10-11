@@ -4,7 +4,7 @@ const TeamReference = db.teamReferences;
 // Create and Save a new TeamReference
 exports.create = (req, res) => {
     // Validate request
-    if (req.body.team ^ (req.body.group && req.body.rank)) {
+    if (req.body.team ^ (req.body.group && req.body.rank != null)) {
         res.status(400).send({ message: "Content must either be a team id or a group id and rank!" });
         return;
     }

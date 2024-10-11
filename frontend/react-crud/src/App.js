@@ -4,6 +4,8 @@ import './App.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import Leonschwonz from "./components/leonschwonz.component.js";
+import TournamentsList from "./components/view-tournaments.component.js";
+import TournamentsCreate from "./components/create-tournament.component.js";
 import Tutorial from "./components/tutorial.component";
 import TutorialsList from "./components/tutorials-list.component.js";
 import AddTeam from "./components/add-team.component";
@@ -24,6 +26,11 @@ class App extends Component {
             Tommythewho12
           </Link>
           <div className="navbar-nav mr-auto">
+            <li className="nav-item">
+              <Link to={"/tournaments"} className="nav-link">
+                Tournaments
+              </Link>
+            </li>
             <li className="nav-item">
               <Link to={"/tutorials"} className="nav-link">
                 Tutorials
@@ -65,16 +72,23 @@ class App extends Component {
         <div className="container mt-3">
           <Routes>
             <Route path="/" element={<Leonschwonz />} />
+
+            <Route path="/tournaments" element={<TournamentsList />} />
+            <Route path="/tournaments/new" element={<TournamentsCreate />} />
+
             <Route path="/tutorials" element={<TutorialsList />} />
-            <Route path="/add" element={<AddTeam />} />
             <Route path="/tutorials/:id" element={<Tutorial />} />
+
+            <Route path="/add" element={<AddTeam />} />
             <Route path="/teams" element={<TeamsList />} />
+
             <Route path="/matchs" element={<MatchsList />} />
+            <Route path="/admin/matchs" element={<MatchsEditor />} />
+
             <Route path="/phases" element={<PhasesList />} />
             <Route path="/phases/:id" element={<PhaseView />} />
-
-            <Route path="/admin/matchs" element={<MatchsEditor />} />
             <Route path="/admin/phase" element={<AddPhase />} />
+
           </Routes>
         </div>
       </div>

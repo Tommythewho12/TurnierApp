@@ -3,7 +3,7 @@ const Group = db.groups;
 
 exports.create = (req, res) => {
     // Validate request
-    if (!req.body.phase || !req.body.number || !req.body.noOfTeams) {
+    if (!req.body.phase || req.body.number == null || req.body.noOfTeams == null) {
         res.status(400).send({ message: "You must specify phase, number and noOfTeams!" });
         return;
     }

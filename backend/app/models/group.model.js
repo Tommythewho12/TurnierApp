@@ -4,7 +4,7 @@ module.exports = mongoose => {
         mongoose.Schema(
             {
                 phase: { type: mongoose.Schema.Types.ObjectId, ref: "phase" },
-                number: Number,
+                number: Number, // TODO: rename to order?
                 noOfTeams: Number
                 // name: String
             }

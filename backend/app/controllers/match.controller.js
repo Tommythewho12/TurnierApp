@@ -1,19 +1,62 @@
 const db = require("../models");
 const Match = db.matchs;
+const TeamReference = db.teamReferences;
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     // Validate request
-    if (!req.body.order) {
-        res.status(400).send({ message: "You must specify group and order!" });
+    if (!req.body.group || req.body.order == null || !req.body.homeTeam || !req.body.guestTeam) {
+        res.status(400).send({ message: "You must specify group, order, homeTeam, and guestTeam!" });
         return;
     }
+
+    if (!(req.body.homeTeam.team != null ^ (req.body.homeTeam.group != null && req.body.homeTeam.rank != null))) {
+        res.status(400).send({ message: "Home team is not correctly specified!", homeTeam: req.body.homeTeam, linkBool: req.body.homeTeam.team });
+        return;
+    }
+
+    if (!(req.body.guestTeam.team != null ^ (req.body.guestTeam.group != null && req.body.guestTeam.rank != null))) {
+        res.status(400).send({ message: "Guest team is not correctly specified!", guestTeam: req.body.guestTeam });
+        return;
+    }
+
+    const homeTeamReference = new TeamReference({
+        team: req.body.homeTeam.team,
+        group: req.body.homeTeam.group,
+        rank: req.body.homeTeam.rank
+    });
+
+    const guestTeamReference = new TeamReference({
+        team: req.body.guestTeam.team,
+        group: req.body.guestTeam.group,
+        rank: req.body.guestTeam.rank
+    });
+
+    let homeTeamReferenceId;
+    homeTeamReference.save(homeTeamReference)
+        .then(data => {
+            homeTeamReferenceId = data._id;
+        })
+        .catch(err => res.status(500).send({
+            message: err.message || "Some error occurred while creating the home team reference."
+        }));
+
+    let guestTeamReferenceId;
+    guestTeamReference.save(guestTeamReference)
+        .then(data => {
+            guestTeamReferenceId = data._id;
+        })
+        .catch(err => res.status(500).send({
+            message: err.message || "Some error occurred while creating the guest team reference."
+        }));
+
+    await new Promise(res => setTimeout(res, 1000));
 
     // Create a Match
     const match = new Match({
         group: req.body.group,
         order: req.body.order,
-        homeTeam: req.body.homeTeam,
-        guestTeam: req.body.guestTeam,
+        homeTeam: homeTeamReferenceId,
+        guestTeam: guestTeamReferenceId,
         sets: req.body.sets ? req.body.sets : []
         // field: req.body.field ? req.body.field : ""
         // kickoff: req.body.kickoff,

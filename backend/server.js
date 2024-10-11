@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
 });
 
 require("./app/routes/tutorial.routes")(app);
+require("./app/routes/tournament.routes")(app);
 require("./app/routes/team.routes")(app);
 require("./app/routes/match.routes")(app);
 require("./app/routes/phase.routes")(app);

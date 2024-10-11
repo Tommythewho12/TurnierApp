@@ -1,3 +1,9 @@
+:root {
+  --missing-content-bg-color: #fff3cd;
+  --missing-content-border-color: #ffc107;
+  --missing-content-text-color: #d39b00;
+}
+
 .list {
   text-align: left;
   max-width: 750px;
@@ -12,4 +18,16 @@
 .edit-form {
   max-width: 300px;
   margin: auto;
+}
+
+.missing-content-div {
+  border-radius: 15px;
+  border-style: dashed;
+  border-width: 1px;
+  border-color: var(--bs-warning);
+  padding: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
+  background-color: var(--bs-warning-bg-subtle);
+  color: var(--missing-content-text-color);
 }
