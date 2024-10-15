@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PhaseDataService from "../services/phase.service.js";
 import GroupDataService from "../services/group.service.js";
 import MatchDataService from "../services/match.service.js";
 import { withRouter } from '../common/with-router';
@@ -20,7 +21,19 @@ class PhaseView extends Component {
     }
 
     componentDidMount() {
+        this.getPhase();
         this.getGroups();
+    }
+
+    getPhase() {
+        PhaseDataService
+            .get(this.props.router.params.id)
+            .then(response => {
+                this.setState({phase: {id: response.data._id, order: response.data.order}});
+            })
+            .catch(e => {
+                console.log(e);
+            });
     }
 
     getGroups() {
@@ -49,17 +62,21 @@ class PhaseView extends Component {
         this.calculateScoreForEachTeam(groups);
     }
 
+    getTeamNameFromTeamReference(team) {
+
+    }
+
     calculateScoreForEachTeam(groups) {
         // this loop creates a map 'teams' and calculates the stats for each
         groups.forEach(group => {
             let teams = {};
             group.matchs.forEach(match => {
-                const homeId = match.homeTeam._id, guestId = match.guestTeam._id;
+                const homeId = match.homeTeam.team._id, guestId = match.guestTeam.team._id;
                 if (!teams[homeId]) {
-                    teams[homeId] = {id: homeId, name: match.homeTeam.name, score: 0, matches: 0, wins: 0, losses: 0, draws: 0, pointsScored: 0, pointsSuffered: 0};
+                    teams[homeId] = {id: homeId, name: match.homeTeam.team.name, score: 0, matches: 0, wins: 0, losses: 0, draws: 0, pointsScored: 0, pointsSuffered: 0};
                 }
                 if (!teams[guestId]) {
-                    teams[guestId] = {id: guestId, name: match.guestTeam.name, score: 0, matches: 0, wins: 0, losses: 0, draws: 0, pointsScored: 0, pointsSuffered: 0};
+                    teams[guestId] = {id: guestId, name: match.guestTeam.team.name, score: 0, matches: 0, wins: 0, losses: 0, draws: 0, pointsScored: 0, pointsSuffered: 0};
                 }
 
                 teams[homeId].matches++;
@@ -92,6 +109,7 @@ class PhaseView extends Component {
                 }
             });
             group.teams = teams;
+            console.log("teams", teams)
         });
         this.setState({groups: groups});
     }
@@ -135,7 +153,7 @@ class PhaseView extends Component {
                                     <div className="container match-container">
                                         <div className="row home-row">
                                             <div className="col team-name-col">
-                                                {match.homeTeam.name}
+                                                {match.homeTeam.team.name}
                                             </div>
                                             <div className="col score-col">
                                             </div>
@@ -147,7 +165,7 @@ class PhaseView extends Component {
                                         </div>
                                         <div className="row guest-row">
                                             <div className="col team-name-col">
-                                                {match.guestTeam.name}
+                                                {match.guestTeam.team.name}
                                             </div>
                                             <div className="col score-col">
 
@@ -166,14 +184,14 @@ class PhaseView extends Component {
                                     <div className="container match-container">
                                         <table className="table home-row">
                                             <tr>
-                                                <td>{match.homeTeam.name}</td>
+                                                <td>{match.homeTeam.team.name}</td>
                                                 <td></td>
                                                 {match.sets && match.sets.map(set => (
                                                     <td>{set.scoreHome}</td>
                                                 ))}
                                             </tr>
                                             <tr>
-                                                <td>{match.guestTeam.name}</td>
+                                                <td>{match.guestTeam.team.name}</td>
                                                 <td></td>
                                                 {match.sets && match.sets.map(set => (
                                                     <td>{set.scoreGuest}</td>

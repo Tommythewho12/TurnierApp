@@ -1,4 +1,4 @@
-module.exports = mongoose => {
+export default mongoose => {
     const Match = mongoose.model(
         "match",
         mongoose.Schema(
@@ -7,7 +7,8 @@ module.exports = mongoose => {
                 order: Number,
                 homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "teamReference" },
                 guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "teamReference" },
-                sets: []
+                sets: [],
+                concluded: { type: Boolean, default: false }
                 // homeTeamLabel: String
                 // guestTeamLabel: String
                 // field: String, 

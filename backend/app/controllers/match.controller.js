@@ -75,8 +75,18 @@ exports.create = async (req, res) => {
 // Retrieve all Matchs from the database.
 exports.findAll = (req, res) => {
     Match.find()
-        .populate("homeTeam")
-        .populate("guestTeam")
+        .populate({
+            path: "homeTeam",
+            populate: {
+                path: "team"
+            }
+        })
+        .populate({
+            path: "guestTeam",
+            populate: {
+                path: "team"
+            }
+        })
         .then(data => {
             res.send(data);
         })
@@ -92,8 +102,18 @@ exports.findAll = (req, res) => {
 exports.findAllByGroupId = (req, res) => {
     const id = req.params.groupId;
     Match.find({ group: id })
-        .populate("homeTeam")
-        .populate("guestTeam")
+        .populate({
+            path: "homeTeam",
+            populate: {
+                path: "team"
+            }
+        })
+        .populate({
+            path: "guestTeam",
+            populate: {
+                path: "team"
+            }
+        })
         .then(data => {
             res.send(data);
         })
@@ -110,8 +130,18 @@ exports.findOne = (req, res) => {
     const id = req.params.id;
 
     Match.findById(id)
-        .populate("homeTeam")
-        .populate("guestTeam")
+        .populate({
+            path: "homeTeam",
+            populate: {
+                path: "team"
+            }
+        })
+        .populate({
+            path: "guestTeam",
+            populate: {
+                path: "team"
+            }
+        })
         .then(data => {
             if (!data)
                 res.status(404).send({ message: "Not found Match with id " + id });
@@ -182,6 +212,27 @@ exports.update = (req, res) => {
             });
         });
 };
+
+exports.setMatchStatusConcluded = (req, res) => {
+    Match
+        .findByIdAndUpdate(req.params.id, {concluded: true}, {useFindAndModify: false})
+        .then(data => {
+            if (!data) {
+                res.status(404).send({
+                    message: `Cannot delete Match with id=${id}. Maybe Match was not found!`
+                });
+            } else {
+                res.send({
+                    message: "Match was deleted successfully!"
+                });
+            }
+        })
+        .catch(err => {
+            res.status(500).send({
+                message: "Could not delete Match with id=" + id
+            });
+        });
+}
 
 // Delete a Match with the specified id in the request
 exports.delete = (req, res) => {

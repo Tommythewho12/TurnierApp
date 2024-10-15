@@ -11,7 +11,7 @@ db.teams = require("./team.model.js")(mongoose);
 db.tournaments = require("./tournament.model.js")(mongoose);
 db.phases = require("./phase.model.js")(mongoose);
 db.groups = require("./group.model.js")(mongoose);
-db.teamReferences = require("./team-reference.model.js")(mongoose);
-db.matchs = require("./match.model.js")(mongoose);
+db.teamReferences = require("./team-reference.model.js").default(mongoose);
+db.matchs = require("./match.model.js").default(mongoose);
 
 module.exports = db;
