@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import MatchDataService from "../services/match.service.js";
 import TeamDataService from "../services/team.service.js";
 
 export default class MatchsList extends Component {
@@ -48,16 +47,16 @@ export default class MatchsList extends Component {
     }
 
     retrieveMatchs() {
-        MatchDataService.getAll()
-            .then(response => {
-                this.setState({
-                    matchs: response.data
-                });
-                console.log(response.data);
-            })
-            .catch(e => {
-                console.log(e);
-            });
+        // MatchDataService.getAll()
+        //     .then(response => {
+        //         this.setState({
+        //             matchs: response.data
+        //         });
+        //         console.log(response.data);
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //     });
     }
 
     retrieveTeams() {
@@ -100,15 +99,15 @@ export default class MatchsList extends Component {
             guestTeam: this.state.guestTeam
         };
         let newMatchs = this.state.matchs;
-        MatchDataService.create(data)
-            .then(response => {
-                newMatchs.push = response.data;
-                console.log("response:", response);
-                this.refreshList();
-            })
-            .catch(e => {
-                console.log(e);
-            });
+        // MatchDataService.create(data)
+        //     .then(response => {
+        //         newMatchs.push = response.data;
+        //         console.log("response:", response);
+        //         this.refreshList();
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //     });
 
         this.setState({
             matchs: newMatchs,
@@ -118,24 +117,24 @@ export default class MatchsList extends Component {
     }
 
     deleteMatch(e) {
-        MatchDataService.delete(e)
-            .then(response => {
-                this.refreshList();
-            })
-            .catch(e => {
-                console.log(e);
-            });
+        // MatchDataService.delete(e)
+        //     .then(response => {
+        //         this.refreshList();
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //     });
     }
 
     deleteAllMatchs() {
-        MatchDataService.deleteAll()
-            .then(response => {
-                console.log(response.data);
-                this.refreshList();
-            })
-            .catch(e => {
-                console.log(e);
-            });
+        // MatchDataService.deleteAll()
+        //     .then(response => {
+        //         console.log(response.data);
+        //         this.refreshList();
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //     });
     }
 
     addingSet(e) {
@@ -163,20 +162,20 @@ export default class MatchsList extends Component {
             scoreHome: this.state.scoreHome,
             scoreGuest: this.state.scoreGuest
         });
-        MatchDataService.update(matchToUpdate._id, matchToUpdate)
-            .then(response => {
-                this.refreshList();
-            })
-            .catch(e => {
-                console.log(e);
-            })
+        // MatchDataService.update(matchToUpdate._id, matchToUpdate)
+        //     .then(response => {
+        //         this.refreshList();
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //     })
     }
 
     saveTeam(e) {
-        MatchDataService.update(e.matchId, {[e.side]: e.teamId})
-            .catch(e => {
-                console.log(e);
-            })
+        // MatchDataService.update(e.matchId, {[e.side]: e.teamId})
+        //     .catch(e => {
+        //         console.log(e);
+        //     })
     }
 
     render() {

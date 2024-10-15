@@ -1,12 +1,11 @@
 module.exports = mongoose => {
     const TeamReferenceSchema = new mongoose.Schema({
-        // ref: { type: mongoose.Schema.Types.ObjectId, ref: "teamReference" },
         phase: Number,
         group: Number,
         rank: Number
     });
 
-    const MatchsSchema = new mongoose.Schema({
+    const MatchSchema = new mongoose.Schema({
         order: Number,
         homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
         guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
@@ -18,7 +17,7 @@ module.exports = mongoose => {
         order: Number,
         teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "team" }],
         teamReferences: [TeamReferenceSchema],
-        matchs: [MatchsSchema]
+        matchs: [MatchSchema]
     });
 
     const PhaseSchema = new mongoose.Schema({

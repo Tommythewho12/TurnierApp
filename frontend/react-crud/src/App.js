@@ -4,19 +4,13 @@ import './App.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import Leonschwonz from "./components/leonschwonz.component.js";
-import TournamentsList from "./components/view-tournaments.component.js";
-import TournamentsCreate from "./components/create-tournament.component.js";
-import Tournament from "./components/view-tournament.component.js";
+import ListTournaments from "./components/list-tournaments.component.js";
+import CreateTournaments from "./components/create-tournament.component.js";
+import ViewTournament from "./components/view-tournament.component.js";
 import Tutorial from "./components/tutorial.component";
 import TutorialsList from "./components/tutorials-list.component.js";
 import AddTeam from "./components/add-team.component";
 import TeamsList from "./components/teams-list.component.js"
-import MatchsList from "./components/matchs-list.component.js"
-import MatchsEditor from "./components/matchs-editor.component.js"
-import PhaseEditor from "./components/add-phase.component.js"
-import AddPhase from "./components/add-phase.component.js";
-import PhasesList from "./components/phases-list.component.js";
-import PhaseView from "./components/phase-view.component.js";
 
 class App extends Component {
   render() {
@@ -38,33 +32,13 @@ class App extends Component {
               </Link>
             </li>
             <li className="nav-item">
-              <Link to={"/matchs"} className="nav-link">
-                Matches
-              </Link>
-            </li>
-            <li className="nav-item">
               <Link to={"/teams"} className="nav-link">
                 Teams
               </Link>
             </li>
             <li className="nav-item">
               <Link to={"/add"} className="nav-link">
-                Add
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to={"/admin/matchs"} className="nav-link">
-                Edit Matches
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to={"/admin/phase"} className="nav-link">
-                Edit Phases
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to={"/phases"} className="nav-link">
-                Phases
+                Add Team
               </Link>
             </li>
           </div>
@@ -74,23 +48,15 @@ class App extends Component {
           <Routes>
             <Route path="/" element={<Leonschwonz />} />
 
-            <Route path="/tournaments" element={<TournamentsList />} />
-            <Route path="/tournaments/new" element={<TournamentsCreate />} />
-            <Route path="/tournaments/:id" element={<Tournament />} />
+            <Route path="/tournaments" element={<ListTournaments />} />
+            <Route path="/tournaments/new" element={<CreateTournaments />} />
+            <Route path="/tournaments/:id" element={<ViewTournament />} />
 
             <Route path="/tutorials" element={<TutorialsList />} />
             <Route path="/tutorials/:id" element={<Tutorial />} />
 
             <Route path="/add" element={<AddTeam />} />
             <Route path="/teams" element={<TeamsList />} />
-
-            <Route path="/matchs" element={<MatchsList />} />
-            <Route path="/admin/matchs" element={<MatchsEditor />} />
-
-            <Route path="/phases" element={<PhasesList />} />
-            <Route path="/phases/:id" element={<PhaseView />} />
-            <Route path="/admin/phase" element={<AddPhase />} />
-
           </Routes>
         </div>
       </div>

@@ -1,14 +1,10 @@
 import React, { Component } from "react";
 import TeamDataService from "../services/team.service.js";
 import TournamentDataService from "../services/tournament.service.js";
-import PhaseDataService from "../services/phase.service.js";
-import GroupDataService from "../services/group.service.js";
-import MatchDataService from "../services/match.service.js";
-
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-export default class TournamentsCreate extends Component {
+export default class CreateTournaments extends Component {
     constructor(props) {
         super(props);
 
@@ -55,15 +51,15 @@ export default class TournamentsCreate extends Component {
     }
 
     updateTournamentName(input) {
-        this.setState({ tournament: {...this.state.tournament, name: input }});
+        this.setState({ tournament: { ...this.state.tournament, name: input } });
     }
 
     updateTournamentTeams(teamId) {
         if (this.state.tournament.teams.includes(teamId)) {
             let newTeams = this.state.tournament.teams.filter(item => item !== teamId);
-            this.setState({ tournament: { ...this.state.tournament, teams: newTeams }});
+            this.setState({ tournament: { ...this.state.tournament, teams: newTeams } });
         } else {
-            this.setState({ tournament: { ...this.state.tournament, teams: [ ...this.state.tournament.teams, teamId ]}});
+            this.setState({ tournament: { ...this.state.tournament, teams: [...this.state.tournament.teams, teamId] } });
         }
     }
 
@@ -78,35 +74,39 @@ export default class TournamentsCreate extends Component {
     }
 
     pushPhase() {
-        this.setState({tournament: { ...this.state.tournament, phases: [ ...this.state.tournament.phases, {
-            order: this.state.tournament.phases.length,
-            groups: this.state.tournament.phases.length === 0 
-                ? [{ order: 0, teams: [ undefined, undefined ], teamReferences: undefined, matchs: [] }]
-                : [{ order: 0, teams: undefined, teamReferences: [ undefined, undefined ], matchs: [] }]
-        }]}});
+        this.setState({
+            tournament: {
+                ...this.state.tournament, phases: [...this.state.tournament.phases, {
+                    order: this.state.tournament.phases.length,
+                    groups: this.state.tournament.phases.length === 0
+                        ? [{ order: 0, teams: [undefined, undefined], teamReferences: undefined, matchs: [] }]
+                        : [{ order: 0, teams: undefined, teamReferences: [undefined, undefined], matchs: [] }]
+                }]
+            }
+        });
     }
 
     popPhase() {
         const newPhases = this.state.phases;
         newPhases.pop();
-        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases } });
     }
 
     pushGroup(phaseIndex) {
         const newPhases = this.state.tournament.phases;
-        newPhases[phaseIndex].groups = [...newPhases[phaseIndex].groups, { 
-            order: newPhases[phaseIndex].groups.length, 
+        newPhases[phaseIndex].groups = [...newPhases[phaseIndex].groups, {
+            order: newPhases[phaseIndex].groups.length,
             teams: phaseIndex === 0 ? [undefined, undefined] : undefined,
             teamReferences: phaseIndex === 0 ? undefined : [undefined, undefined],
             matchs: []
         }];
-        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases } });
     }
 
     popGroup(phaseIndex) {
         const newPhases = this.state.tournament.phases;
         newPhases[phaseIndex].groups.pop();
-        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases } });
     }
 
     updateGroupSize(value, phaseIndex, groupIndex) {
@@ -119,7 +119,7 @@ export default class TournamentsCreate extends Component {
                 newPhases[phaseIndex].groups[groupIndex].teamReferences.push(undefined);
             }
         }
-        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases } });
     }
 
     updateTeam(value, phaseIndex, groupIndex, teamIndex) {
@@ -128,10 +128,10 @@ export default class TournamentsCreate extends Component {
         if (splitValue.length === 1) {
             newPhases[phaseIndex].groups[groupIndex].teams[teamIndex] = value;
         } else {
-            newPhases[phaseIndex].groups[groupIndex].teamReferences[teamIndex] = {phase: splitValue[0], group: splitValue[1], rank: splitValue[2]};
+            newPhases[phaseIndex].groups[groupIndex].teamReferences[teamIndex] = { phase: splitValue[0], group: splitValue[1], rank: splitValue[2] };
         }
 
-        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases } });
     }
 
     createTournament() {
@@ -212,7 +212,7 @@ export default class TournamentsCreate extends Component {
 
     parseTeamReference(phases, teamReference) {
         const teamReferenceSplit = teamReference.split("-");
-        return { group: phases[teamReferenceSplit[0]].groups[teamReferenceSplit[1]].id, rank: Number(teamReferenceSplit[2])};
+        return { group: phases[teamReferenceSplit[0]].groups[teamReferenceSplit[1]].id, rank: Number(teamReferenceSplit[2]) };
     }
 
     render() {
@@ -323,15 +323,15 @@ export default class TournamentsCreate extends Component {
                                                 <button
                                                     className="btn btn-danger"
                                                     onClick={() => this.popPhase()}>
-                                                        - Phase
+                                                    - Phase
                                                 </button>
                                             )}
                                         </div>
                                         <div className="col-auto">
-                                            <button 
-                                                className="btn btn-success" 
+                                            <button
+                                                className="btn btn-success"
                                                 onClick={() => this.pushPhase()}>
-                                                    + Phase
+                                                + Phase
                                             </button>
                                         </div>
                                     </div>

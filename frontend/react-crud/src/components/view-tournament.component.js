@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import TournamentDataService from "../services/tournament.service.js";
 import { withRouter } from '../common/with-router';
 
-class Tournament extends Component {
+class ViewTournament extends Component {
     constructor(props) {
         super(props);
         this.retrieveTournament = this.retrieveTournament.bind(this);
@@ -44,4 +44,4 @@ class Tournament extends Component {
     }
 }
 
-export default withRouter(Tournament);
+export default withRouter(ViewTournament);

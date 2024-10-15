@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import MatchDataService from "../services/match.service.js";
 
 export default class MatchsList extends Component {
     constructor(props) {
@@ -16,15 +15,15 @@ export default class MatchsList extends Component {
     }
 
     retrieveMatchs() {
-        MatchDataService.getAll()
-            .then(response => {
-                this.setState({
-                    matchs: response.data
-                });
-            })
-            .catch(e => {
-                console.log(e);
-            });
+        // MatchDataService.getAll()
+        //     .then(response => {
+        //         this.setState({
+        //             matchs: response.data
+        //         });
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //     });
     }
 
     render() {

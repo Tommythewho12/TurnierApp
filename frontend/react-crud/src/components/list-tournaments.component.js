@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import TournamentDataService from "../services/tournament.service.js";
 import { Link } from "react-router-dom";
 
-export default class TournamentsList extends Component {
+export default class ListTournaments extends Component {
     constructor(props) {
         super(props);
         this.retrieveTournaments = this.retrieveTournaments.bind(this);
@@ -42,7 +42,7 @@ export default class TournamentsList extends Component {
                             <div className="col">
                                 Looks like there are no tournaments yet! Create a new tournament with the button below.
                             </div>
-                        </div>  
+                        </div>
                     ) : (
                         <ul className="list-group mb-2">
                             {tournaments && tournaments.map((tournament, index) => (
@@ -54,7 +54,7 @@ export default class TournamentsList extends Component {
                     )}
                     <Link to={"new"} className="">
                         <button className="btn btn-success">
-                                + Tournament
+                            + Tournament
                         </button>
                     </Link>
                 </div>
