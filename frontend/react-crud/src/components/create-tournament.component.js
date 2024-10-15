@@ -80,7 +80,9 @@ export default class TournamentsCreate extends Component {
     pushPhase() {
         this.setState({tournament: { ...this.state.tournament, phases: [ ...this.state.tournament.phases, {
             order: this.state.tournament.phases.length,
-            groups: [{ order: 0, teams: [ undefined, undefined ], matchs: [] }]
+            groups: this.state.tournament.phases.length === 0 
+                ? [{ order: 0, teams: [ undefined, undefined ], teamReferences: undefined, matchs: [] }]
+                : [{ order: 0, teams: undefined, teamReferences: [ undefined, undefined ], matchs: [] }]
         }]}});
     }
 
@@ -92,19 +94,12 @@ export default class TournamentsCreate extends Component {
 
     pushGroup(phaseIndex) {
         const newPhases = this.state.tournament.phases;
-        // replace below with following
-        // const groups = this.state.tournament.phases[phaseIndex].groups;
-        // groups = [...groups, { 
-        //     order: groups.length, 
-        //     teams: [undefined, undefined],
-        //     matchs: []
-        // }];
         newPhases[phaseIndex].groups = [...newPhases[phaseIndex].groups, { 
             order: newPhases[phaseIndex].groups.length, 
-            teams: [undefined, undefined],
+            teams: phaseIndex === 0 ? [undefined, undefined] : undefined,
+            teamReferences: phaseIndex === 0 ? undefined : [undefined, undefined],
             matchs: []
         }];
-        // until here
         this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
     }
 
@@ -117,21 +112,23 @@ export default class TournamentsCreate extends Component {
     updateGroupSize(value, phaseIndex, groupIndex) {
         const newPhases = this.state.tournament.phases;
         newPhases[phaseIndex].groups[groupIndex].teams = [];
-        for (let i = 0; i < Number(value.target.value); i++) {
-            newPhases[phaseIndex].groups[groupIndex].teams.push(undefined);
+        for (let i = 0; i < Number(value); i++) {
+            if (phaseIndex === 0) {
+                newPhases[phaseIndex].groups[groupIndex].teams.push(undefined);
+            } else {
+                newPhases[phaseIndex].groups[groupIndex].teamReferences.push(undefined);
+            }
         }
         this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
     }
 
     updateTeam(value, phaseIndex, groupIndex, teamIndex) {
         const newPhases = this.state.tournament.phases;
-
         const splitValue = value.split("-");
-        if (splitValue > 1) {
+        if (splitValue.length === 1) {
             newPhases[phaseIndex].groups[groupIndex].teams[teamIndex] = value;
         } else {
-            // TODO
-            // newPhases[phaseIndex].groups[groupIndex].teamReferences[teamIndex] = value;
+            newPhases[phaseIndex].groups[groupIndex].teamReferences[teamIndex] = {phase: splitValue[0], group: splitValue[1], rank: splitValue[2]};
         }
 
         this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
@@ -291,9 +288,9 @@ export default class TournamentsCreate extends Component {
                                                                             className="form-control"
                                                                             type="number"
                                                                             id={phaseIndex + "-" + groupIndex}
-                                                                            defaultValue={group.teams.length}
+                                                                            defaultValue={phaseIndex === 0 ? group.teams.length : group.teamReferences.length}
                                                                             min={2}
-                                                                            onChange={v => this.updateGroupSize(v, phaseIndex, groupIndex)} />
+                                                                            onChange={v => this.updateGroupSize(v.target.value, phaseIndex, groupIndex)} />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -353,17 +350,25 @@ export default class TournamentsCreate extends Component {
                                                         <div className="card">
                                                             <div className="card-body">
                                                                 <h4>Group {groupIndex}</h4>
-                                                                {group.teams && group.teams.map((team, teamIndex) => (
+                                                                {phaseIndex === 0 && group.teams && group.teams.map((team, teamIndex) => (
                                                                     <div>
                                                                         <label htmlFor={phaseIndex + "-" + groupIndex + "-" + teamIndex}>Team {teamIndex + 1}</label>
                                                                         <select id={phaseIndex + "-" + groupIndex + "-" + teamIndex} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamIndex)}>
                                                                             <option hidden disabled selected={team === undefined}>-- select team --</option>
-                                                                            {phaseIndex === 0 && teams.length > 0 && teams.map((teamSelection, index) => (
+                                                                            {teams.length > 0 && teams.map((teamSelection, index) => (
                                                                                 <option value={teamSelection} selected={team === teamSelection}>
                                                                                     {teamSelection}
                                                                                 </option>
                                                                             ))}
-                                                                            {phaseIndex !== 0 && phases[phaseIndex - 1].groups.map((groupInt, groupIntIndex) => (
+                                                                        </select>
+                                                                    </div>
+                                                                ))}
+                                                                {phaseIndex !== 0 && group.teamReferences && group.teamReferences.map((teamRef, teamRefIndex) => (
+                                                                    <div>
+                                                                        <label htmlFor={phaseIndex + "-" + groupIndex + "-" + teamRefIndex}>Team {teamRefIndex + 1}</label>
+                                                                        <select id={phaseIndex + "-" + groupIndex + "-" + teamRefIndex} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamRefIndex)}>
+                                                                            <option hidden disabled selected={teamRef === undefined}>-- select team --</option>
+                                                                            {phases[phaseIndex - 1].groups.map((groupInt, groupIntIndex) => (
                                                                                 <>
                                                                                     {groupInt.teams.map((_, rank) => (
                                                                                         <option value={phaseIndex - 1 + "-" + groupIntIndex + "-" + rank}>

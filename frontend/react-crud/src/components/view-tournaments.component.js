@@ -46,7 +46,7 @@ export default class TournamentsList extends Component {
                     ) : (
                         <ul className="list-group mb-2">
                             {tournaments && tournaments.map((tournament, index) => (
-                                <Link to={""} className="list-group-item" key={index}>
+                                <Link to={tournament._id} className="list-group-item" key={index}>
                                     {tournament.name}
                                 </Link>
                             ))}
