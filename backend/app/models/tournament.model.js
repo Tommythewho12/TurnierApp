@@ -3,7 +3,9 @@ module.exports = mongoose => {
         "tournament",
         mongoose.Schema(
             {
-                name: String
+                name: String,
+                teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "team" }],
+                phases: [{ type: mongoose.Schema.Types.ObjectId, ref: "phase" }]
             }
         )
     );

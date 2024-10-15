@@ -5,6 +5,7 @@ import PhaseDataService from "../services/phase.service.js";
 import GroupDataService from "../services/group.service.js";
 import MatchDataService from "../services/match.service.js";
 
+
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 export default class TournamentsCreate extends Component {
@@ -12,11 +13,18 @@ export default class TournamentsCreate extends Component {
         super(props);
 
         this.state = {
+            // page controls
             stage: 0,
-            name: "",
+
+            // static values
             allTeams: [],
-            teams: [],
-            phases: []
+
+            // editing values
+            tournament: {
+                name: "",
+                teams: [],
+                phases: []
+            }
         };
     }
 
@@ -37,81 +45,115 @@ export default class TournamentsCreate extends Component {
     }
 
     nextStage() {
-        if (this.state.stage === 3) {
-            this.createMatchs();
-        }
+        console.log(this.state);
         this.setState({ stage: this.state.stage + 1 });
     }
 
     previousStage() {
+        console.log(this.state);
         this.setState({ stage: this.state.stage - 1 });
     }
 
-    checkboxChangeState(teamId) {
-        if (this.state.teams.includes(teamId)) {
-            let newTeams = this.state.teams.filter(item => item !== teamId);
-            this.setState({ teams: newTeams });
+    updateTournamentName(input) {
+        this.setState({ tournament: {...this.state.tournament, name: input }});
+    }
+
+    updateTournamentTeams(teamId) {
+        if (this.state.tournament.teams.includes(teamId)) {
+            let newTeams = this.state.tournament.teams.filter(item => item !== teamId);
+            this.setState({ tournament: { ...this.state.tournament, teams: newTeams }});
         } else {
-            this.setState({ teams: [...this.state.teams, teamId] });
+            this.setState({ tournament: { ...this.state.tournament, teams: [ ...this.state.tournament.teams, teamId ]}});
         }
     }
 
-    validInput() {
+    inputIsValid() {
         switch (this.state.stage) {
-            case 0: return this.state.name.length > 0;
-            case 1: return this.state.teams.length > 2;
-            case 2: return this.state.phases.length > 0;
+            case 0: return this.state.tournament.name.length > 0;
+            case 1: return this.state.tournament.teams.length > 2;
+            case 2: return this.state.tournament.phases.length > 0;
             case 3:
             default: return true;
         }
     }
 
-    addPhase() {
-        this.setState({ phases: [...this.state.phases, { order: this.state.phases.length, groups: [{ order: 0, teams: [null, null, null] }] }] });
+    pushPhase() {
+        this.setState({tournament: { ...this.state.tournament, phases: [ ...this.state.tournament.phases, {
+            order: this.state.tournament.phases.length,
+            groups: [{ order: 0, teams: [ undefined, undefined ], matchs: [] }]
+        }]}});
     }
 
-    addGroup(phaseIndex) {
-        const phases = this.state.phases;
-        phases[phaseIndex].groups = [...phases[phaseIndex].groups, { order: phases[phaseIndex].groups.length, teams: [null, null, null] }];
-        this.setState({
-            phases: [...phases]
-        });
-    }
-
-    removeGroup(phaseIndex) {
+    popPhase() {
         const newPhases = this.state.phases;
-        this.state.phases[phaseIndex].groups.pop();
-        this.setState({ phases: newPhases });
+        newPhases.pop();
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
     }
 
-    updateGroup(value, phaseIndex, groupIndex) {
-        const newPhases = this.state.phases;
-        this.state.phases[phaseIndex].groups[groupIndex].teams = [];
+    pushGroup(phaseIndex) {
+        const newPhases = this.state.tournament.phases;
+        // replace below with following
+        // const groups = this.state.tournament.phases[phaseIndex].groups;
+        // groups = [...groups, { 
+        //     order: groups.length, 
+        //     teams: [undefined, undefined],
+        //     matchs: []
+        // }];
+        newPhases[phaseIndex].groups = [...newPhases[phaseIndex].groups, { 
+            order: newPhases[phaseIndex].groups.length, 
+            teams: [undefined, undefined],
+            matchs: []
+        }];
+        // until here
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
+    }
+
+    popGroup(phaseIndex) {
+        const newPhases = this.state.tournament.phases;
+        newPhases[phaseIndex].groups.pop();
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
+    }
+
+    updateGroupSize(value, phaseIndex, groupIndex) {
+        const newPhases = this.state.tournament.phases;
+        newPhases[phaseIndex].groups[groupIndex].teams = [];
         for (let i = 0; i < Number(value.target.value); i++) {
-            this.state.phases[phaseIndex].groups[groupIndex].teams.push(null);
+            newPhases[phaseIndex].groups[groupIndex].teams.push(undefined);
         }
-        this.setState({ phases: newPhases });
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
     }
 
     updateTeam(value, phaseIndex, groupIndex, teamIndex) {
-        const newPhases = this.state.phases;
-        newPhases[phaseIndex].groups[groupIndex].teams[teamIndex] = value.target.value;
-        this.setState({ phases: newPhases });
+        const newPhases = this.state.tournament.phases;
+
+        const splitValue = value.split("-");
+        if (splitValue > 1) {
+            newPhases[phaseIndex].groups[groupIndex].teams[teamIndex] = value;
+        } else {
+            // TODO
+            // newPhases[phaseIndex].groups[groupIndex].teamReferences[teamIndex] = value;
+        }
+
+        this.setState({ tournament: { ...this.state.tournament, phases: newPhases }});
     }
 
-    createMatchs() {
-        console.log("createMatchs");
-
+    createTournament() {
+        console.log(this.state);
+        TournamentDataService
+            .create(this.state.tournament)
+            .then(res => console.log("response", res))
+            .catch(e => console.log(e));
     }
 
+    /*
     async createTournament() {
         const promises = [];
-        const enrichedState = this.state;
+        const enrichedTournament = this.state.tournament;
         const tournamentPromise = TournamentDataService
-            .create({ name: this.state.name })
+            .create({ name: enrichedTournament.name })
             .then(response => {
-                enrichedState.tournamentId = response.data._id;
-                for (let phase of enrichedState.phases) {
+                enrichedTournament.tournamentId = response.data._id;
+                for (let phase of enrichedTournament.phases) {
                     const phasePromise = PhaseDataService
                         .create({ tournamentId: response.data._id, order: phase.order })
                         .then(response => {
@@ -143,7 +185,7 @@ export default class TournamentsCreate extends Component {
         console.log("Done waiting!"); // TODO debug remove
 
         // create n*(n-1)/2 matchs where everyone goes up against each other within a group
-        for (let phase of enrichedState.phases) {
+        for (let phase of enrichedTournament.phases) {
             for (let group of phase.groups) {
                 let noOfTeams = Number(group.teams.length);
                 for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
@@ -152,10 +194,10 @@ export default class TournamentsCreate extends Component {
                         order: i,
                         homeTeam: phase.order === 0
                             ? { team: group.teams[i % noOfTeams] }
-                            : this.parseTeamReference(enrichedState.phases, group.teams[i % noOfTeams]),
+                            : this.parseTeamReference(enrichedTournament.phases, group.teams[i % noOfTeams]),
                         guestTeam: phase.order === 0
                             ? { team: group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams] }
-                            : this.parseTeamReference(enrichedState.phases, group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams])
+                            : this.parseTeamReference(enrichedTournament.phases, group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams])
                     }
                     console.log("data from createTournament.MatchDataService", data); // TODO remove
                     MatchDataService
@@ -169,7 +211,7 @@ export default class TournamentsCreate extends Component {
                 }
             }
         }
-    }
+    }*/
 
     parseTeamReference(phases, teamReference) {
         const teamReferenceSplit = teamReference.split("-");
@@ -178,7 +220,8 @@ export default class TournamentsCreate extends Component {
 
     render() {
         const finalStage = 3; // TODO: fetch this value from outside render(). Possible?
-        const { stage, name, phases, teams } = this.state;
+        const { stage, allTeams, tournament } = this.state;
+        const { name, phases, teams } = tournament;
 
         return (
             <div className="row">
@@ -199,21 +242,21 @@ export default class TournamentsCreate extends Component {
                                         id="name"
                                         required
                                         value={name}
-                                        onChange={v => this.setState({ name: v.target.value })} />
+                                        onChange={v => this.updateTournamentName(v.target.value)} />
                                 </>
                             )}
                             {stage === 1 && (
-                                this.state.allTeams.length !== 0 ? (
+                                allTeams.length !== 0 ? (
                                     <>
-                                        {this.state.allTeams.map((team, index) => (
+                                        {allTeams.map((team, index) => (
                                             <>
                                                 <input
                                                     className="btn-check"
                                                     type="checkbox"
                                                     id={team._id}
                                                     autoComplete="off"
-                                                    checked={this.state.teams.includes(team._id)}
-                                                    onChange={() => this.checkboxChangeState(team._id)} />
+                                                    checked={teams.includes(team._id)}
+                                                    onChange={() => this.updateTournamentTeams(team._id)} />
                                                 <label className="btn btn-primary" htmlFor={team._id}>
                                                     {team.name}
                                                 </label>
@@ -236,7 +279,7 @@ export default class TournamentsCreate extends Component {
                                                 <div className="col-12">
                                                     <h3>Phase {phaseIndex}</h3>
                                                 </div>
-                                                {phase.groups &&
+                                                {phase.groups && phase.groups.length > 0 &&
                                                     phase.groups.map((group, groupIndex) => (
                                                         <div className="col-auto">
                                                             <div className="card">
@@ -250,7 +293,7 @@ export default class TournamentsCreate extends Component {
                                                                             id={phaseIndex + "-" + groupIndex}
                                                                             defaultValue={group.teams.length}
                                                                             min={2}
-                                                                            onChange={v => this.updateGroup(v, phaseIndex, groupIndex)} />
+                                                                            onChange={v => this.updateGroupSize(v, phaseIndex, groupIndex)} />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -259,10 +302,10 @@ export default class TournamentsCreate extends Component {
                                                 <div className="col-auto">
                                                     <div className="card" style={{ width: "12rem" }}>
                                                         <div className="card-body">
-                                                            <button className="btn btn-success" onClick={() => this.addGroup(phaseIndex)}>
+                                                            <button className="btn btn-success" onClick={() => this.pushGroup(phaseIndex)}>
                                                                 + group
                                                             </button>
-                                                            <button className="btn btn-danger" onClick={() => this.removeGroup(phaseIndex)}>
+                                                            <button className="btn btn-danger" onClick={() => this.popGroup(phaseIndex)}>
                                                                 - group
                                                             </button>
                                                         </div>
@@ -282,17 +325,16 @@ export default class TournamentsCreate extends Component {
                                             {phases.length !== 0 && (
                                                 <button
                                                     className="btn btn-danger"
-                                                    onClick={() => {
-                                                        phases.pop();
-                                                        this.setState({ phases: phases })
-                                                    }}>
-                                                    - Phase
+                                                    onClick={() => this.popPhase()}>
+                                                        - Phase
                                                 </button>
                                             )}
                                         </div>
                                         <div className="col-auto">
-                                            <button className="btn btn-success" onClick={() => this.addPhase()}>
-                                                + Phase
+                                            <button 
+                                                className="btn btn-success" 
+                                                onClick={() => this.pushPhase()}>
+                                                    + Phase
                                             </button>
                                         </div>
                                     </div>
@@ -314,9 +356,9 @@ export default class TournamentsCreate extends Component {
                                                                 {group.teams && group.teams.map((team, teamIndex) => (
                                                                     <div>
                                                                         <label htmlFor={phaseIndex + "-" + groupIndex + "-" + teamIndex}>Team {teamIndex + 1}</label>
-                                                                        <select id={phaseIndex + "-" + groupIndex + "-" + teamIndex} onChange={v => this.updateTeam(v, phaseIndex, groupIndex, teamIndex)}>
-                                                                            <option hidden disabled selected={team === null}>-- select team --</option>
-                                                                            {phaseIndex === 0 && teams && teams.map((teamSelection, index) => (
+                                                                        <select id={phaseIndex + "-" + groupIndex + "-" + teamIndex} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamIndex)}>
+                                                                            <option hidden disabled selected={team === undefined}>-- select team --</option>
+                                                                            {phaseIndex === 0 && teams.length > 0 && teams.map((teamSelection, index) => (
                                                                                 <option value={teamSelection} selected={team === teamSelection}>
                                                                                     {teamSelection}
                                                                                 </option>
@@ -346,14 +388,14 @@ export default class TournamentsCreate extends Component {
                     <div className="row justify-content-between">
                         <div className="col">
                             {stage !== 0 && (
-                                <button className="btn btn-success" onClick={() => this.setState({ stage: stage - 1 })}>
+                                <button className="btn btn-success" onClick={() => this.previousStage()}>
                                     Back
                                 </button>
                             )}
                         </div>
                         <div className="col-auto">
                             {stage != finalStage ? (
-                                <button className="btn btn-success" disabled={!this.validInput()} onClick={() => this.setState({ stage: stage + 1 })}>
+                                <button className="btn btn-success" disabled={!this.inputIsValid()} onClick={() => this.nextStage()}>
                                     Next
                                 </button>
                             ) : (

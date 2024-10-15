@@ -3,16 +3,11 @@ export default mongoose => {
         "match",
         mongoose.Schema(
             {
-                group: { type: mongoose.Schema.Types.ObjectId, ref: "group" },
                 order: Number,
-                homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "teamReference" },
-                guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "teamReference" },
+                homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
+                guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
                 sets: [],
                 concluded: { type: Boolean, default: false }
-                // homeTeamLabel: String
-                // guestTeamLabel: String
-                // field: String, 
-                // time: DateTime
             }
         )
     );

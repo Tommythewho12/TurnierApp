@@ -3,9 +3,8 @@ module.exports = mongoose => {
         "phase",
         mongoose.Schema(
             {
-                tournament: { type: mongoose.Schema.Types.ObjectId, ref: "tournament" },
-                order: Number
-                // time: someTime
+                order: Number,
+                groups: [{ type: mongoose.Schema.Types.ObjectId, ref: "group" }]
             }
         )
     );
