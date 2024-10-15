@@ -3,10 +3,10 @@ module.exports = mongoose => {
         "group",
         mongoose.Schema(
             {
-                phase: { type: mongoose.Schema.Types.ObjectId, ref: "phase" },
-                number: Number, // TODO: rename to order?
-                noOfTeams: Number
-                // name: String
+                order: Number,
+                teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "team" }],
+                teamReferences: [{ type: mongoose.Schema.Types.ObjectId, ref: "teamReference" }],
+                matchs: [{ type: mongoose.Schema.Types.ObjectId, ref: "match" }]
             }
         )
     );

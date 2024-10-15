@@ -11,7 +11,9 @@ exports.create = (req, res) => {
 
     // Create a Tournament
     const tournament = new Tournament({
-        name: req.body.name
+        name: req.body.name,
+        teams: req.body.teams,
+        phases: req.body.phases
     });
 
     // Save Tournament in the database

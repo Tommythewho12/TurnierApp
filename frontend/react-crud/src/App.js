@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Leonschwonz from "./components/leonschwonz.component.js";
 import TournamentsList from "./components/view-tournaments.component.js";
 import TournamentsCreate from "./components/create-tournament.component.js";
+import Tournament from "./components/view-tournament.component.js";
 import Tutorial from "./components/tutorial.component";
 import TutorialsList from "./components/tutorials-list.component.js";
 import AddTeam from "./components/add-team.component";
@@ -75,6 +76,7 @@ class App extends Component {
 
             <Route path="/tournaments" element={<TournamentsList />} />
             <Route path="/tournaments/new" element={<TournamentsCreate />} />
+            <Route path="/tournaments/:id" element={<Tournament />} />
 
             <Route path="/tutorials" element={<TutorialsList />} />
             <Route path="/tutorials/:id" element={<Tutorial />} />
