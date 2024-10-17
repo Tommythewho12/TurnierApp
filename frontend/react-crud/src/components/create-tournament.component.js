@@ -136,79 +136,42 @@ export default class CreateTournaments extends Component {
 
     createTournament() {
         console.log(this.state);
+
+        const updatedTournament = this.state.tournament;
+        let phaseIndex = 0;
+        for (let phase of updatedTournament.phases) {
+            for (let group of phase.groups) {
+                if (phaseIndex === 0) {
+                    const noOfTeams = Number(group.teams.length);
+                    // create matches for every team to play vs each other once
+                    for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
+                        group.matchs.push({
+                            order: i,
+                            homeTeam: group.teams[i % noOfTeams],
+                            guestTeam: group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams]
+                        });
+                    }
+                } else {
+                    const noOfTeams = Number(group.teamReferences.length);
+                    // create matches for every team to play vs each other once
+                    for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
+                        group.matchs.push({
+                            order: i,
+                            homeTeam: null,
+                            guestTeam: null
+                        });
+                    }
+                }
+                console.log("group", group);
+            }
+            phaseIndex++;
+        }
+
         TournamentDataService
-            .create(this.state.tournament)
+            .create(updatedTournament)
             .then(res => console.log("response", res))
             .catch(e => console.log(e));
     }
-
-    /*
-    async createTournament() {
-        const promises = [];
-        const enrichedTournament = this.state.tournament;
-        const tournamentPromise = TournamentDataService
-            .create({ name: enrichedTournament.name })
-            .then(response => {
-                enrichedTournament.tournamentId = response.data._id;
-                for (let phase of enrichedTournament.phases) {
-                    const phasePromise = PhaseDataService
-                        .create({ tournamentId: response.data._id, order: phase.order })
-                        .then(response => {
-                            phase.id = response.data._id;
-                            for (let group of phase.groups) {
-                                const groupPromise = GroupDataService.create({ phase: response.data._id, number: group.order, noOfTeams: group.teams.length })
-                                    .then(response => {
-                                        group.id = response.data._id;
-                                        console.log("group.id", group.id); // TODO debug remove
-                                    })
-                                    .catch(e => {
-                                        console.log(e);
-                                    });
-                                promises.push(groupPromise);
-                            }
-                        })
-                        .catch(e => {
-                            console.log(e);
-                        });
-                    promises.push(phasePromise);
-                }
-            })
-            .catch(e => {
-                console.log(e);
-            });
-        promises.push(tournamentPromise);
-        await Promise.all(promises); // TODO await not waiting for this
-        await delay(1000);
-        console.log("Done waiting!"); // TODO debug remove
-
-        // create n*(n-1)/2 matchs where everyone goes up against each other within a group
-        for (let phase of enrichedTournament.phases) {
-            for (let group of phase.groups) {
-                let noOfTeams = Number(group.teams.length);
-                for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
-                    const data = {
-                        group: group.id,
-                        order: i,
-                        homeTeam: phase.order === 0
-                            ? { team: group.teams[i % noOfTeams] }
-                            : this.parseTeamReference(enrichedTournament.phases, group.teams[i % noOfTeams]),
-                        guestTeam: phase.order === 0
-                            ? { team: group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams] }
-                            : this.parseTeamReference(enrichedTournament.phases, group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams])
-                    }
-                    console.log("data from createTournament.MatchDataService", data); // TODO remove
-                    MatchDataService
-                        .create(data)
-                        .then(response => {
-                            console.log("MatchDataService response", response); // TODO remove
-                        })
-                        .catch(e => {
-                            console.log(e);
-                        });
-                }
-            }
-        }
-    }*/
 
     parseTeamReference(phases, teamReference) {
         const teamReferenceSplit = teamReference.split("-");
