@@ -21,11 +21,10 @@ React Frontend starten mit
 
 - create controls for matches/groups/rounds
     - set scores
-    - set teams
+    - set teams (done)
 
 - refactorings
     - create new class field in order to assign matches to fields
-        - extend matches
     - import typescript to code
     - rename "team" to "participant"
     - matches must accomodate either a team or a reference to the winner/loser of another match (done)
@@ -34,19 +33,19 @@ React Frontend starten mit
         - https://dev.to/itswillt/folder-structures-in-react-projects-3dp8
     - reformat routes
         - https://dev.to/kachiic/the-right-way-structure-your-react-router-1i3l
-    - expand tournament api to accept phases and groups and create them backend-side (instead of sending requests for each phase&group)
+    - expand tournament api to accept phases and groups and create them backend-side (instead of sending requests for each phase&group) (done)
+    - flip mongoose schemas around: instead of tournament <-- phases : tournament.phases[{type: mongoose.Schema.Types.ObjectId, ref: "phase"}] (done)
 
 - new features
     - add times to matches
     - add times to phases
     - create qr codes with link to management-match-view
-    - add filter to each group in group view
     - internationalization
     - add authentication for admin
-    - multiple tournaments / history
+    - multiple tournaments / history (done)
     - create a 404 page 
         - https://www.w3schools.com/react/react_router.asp
-    - add check, so that a team cannot appear multiple times in a single group / in a single phase
+    - add check, so that a team cannot appear multiple times in a single group / in a single phase (done)
 
 - infrastructure
     - put app on raspberryPi3
@@ -54,8 +53,7 @@ React Frontend starten mit
 ???
     - create tournament class for persistence (done)
         - extend phase with tournamentId (done)
-        - extend team/participant with tournament id
-    - numbers in sets saved as strings
+        - extend team/participant with tournament id (done)
 
 - research
     - html forms read about: "htmlFor"
