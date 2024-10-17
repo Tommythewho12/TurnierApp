@@ -42,12 +42,10 @@ export default class CreateTournaments extends Component {
     }
 
     nextStage() {
-        console.log(this.state);
         this.setState({ stage: this.state.stage + 1 });
     }
 
     previousStage() {
-        console.log(this.state);
         this.setState({ stage: this.state.stage - 1 });
     }
 
@@ -125,7 +123,12 @@ export default class CreateTournaments extends Component {
 
     updateTeam(value, phaseIndex, groupIndex, teamIndex) {
         const newPhases = this.state.tournament.phases;
-        const splitValue = value.split("-");
+
+        this.removeExistingReferencesToTeamOrTeamReference(value, newPhases);
+        
+        // insert new value
+        const splitValue = value.split("-").map((value) => Number(value));
+
         if (splitValue.length === 1) {
             newPhases[phaseIndex].groups[groupIndex].teams[teamIndex] = value;
         } else {
@@ -135,9 +138,32 @@ export default class CreateTournaments extends Component {
         this.setState({ tournament: { ...this.state.tournament, phases: newPhases } });
     }
 
-    createTournament() {
-        console.log(this.state);
+    removeExistingReferencesToTeamOrTeamReference(value, newPhases) {
+        for (let phase of newPhases) {
+            for (let group of phase.groups) {
+                if (phase.order === 0) {
+                    const position = group.teams.indexOf(value);
+                    if (position >= 0) {
+                        group.teams[position] = undefined;
+                        return;
+                    }
+                } else {
+                    const splitName = value.split("-").map((value) => Number(value));
+                    const position = group.teamReferences.findIndex(v => v !== undefined && v.phase === splitName[0] && v.group === splitName[1] && v.rank === splitName[2]);
+                    if (position >= 0) {
+                        group.teamReferences[position] = undefined;
+                        return;
+                    }
+                }                
+            }
+        }
+    }
 
+    setNewTeamOrTeamReferenceValue(value, newPhases) {
+
+    }
+
+    createTournament() {
         const updatedTournament = this.state.tournament;
         let phaseIndex = 0;
         for (let phase of updatedTournament.phases) {
@@ -163,7 +189,6 @@ export default class CreateTournaments extends Component {
                         });
                     }
                 }
-                console.log("group", group);
             }
             phaseIndex++;
         }
@@ -181,7 +206,7 @@ export default class CreateTournaments extends Component {
 
     render() {
         const finalStage = 3; // TODO: fetch this value from outside render(). Possible?
-        const { stage, allTeams, tournament } = this.state;
+        const { allTeams, stage, unavailableTeams, tournament } = this.state;
         const { name, phases, teams: tournamentTeams } = tournament;
 
         return (
