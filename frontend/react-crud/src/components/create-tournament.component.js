@@ -9,11 +9,12 @@ export default class CreateTournaments extends Component {
         super(props);
 
         this.state = {
-            // page controls
-            stage: 0,
-
             // static values
             allTeams: [],
+            
+            // page controls
+            stage: 0,
+            unavailableTeams: [],
 
             // editing values
             tournament: {
@@ -181,7 +182,7 @@ export default class CreateTournaments extends Component {
     render() {
         const finalStage = 3; // TODO: fetch this value from outside render(). Possible?
         const { stage, allTeams, tournament } = this.state;
-        const { name, phases, teams } = tournament;
+        const { name, phases, teams: tournamentTeams } = tournament;
 
         return (
             <div className="row">
@@ -215,7 +216,7 @@ export default class CreateTournaments extends Component {
                                                     type="checkbox"
                                                     id={team._id}
                                                     autoComplete="off"
-                                                    checked={teams.includes(team._id)}
+                                                    checked={tournamentTeams.includes(team._id)}
                                                     onChange={() => this.updateTournamentTeams(team._id)} />
                                                 <label className="btn btn-primary" htmlFor={team._id}>
                                                     {team.name}
@@ -318,9 +319,9 @@ export default class CreateTournaments extends Component {
                                                                         <label htmlFor={phaseIndex + "-" + groupIndex + "-" + teamIndex}>Team {teamIndex + 1}</label>
                                                                         <select id={phaseIndex + "-" + groupIndex + "-" + teamIndex} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamIndex)}>
                                                                             <option hidden disabled selected={team === undefined}>-- select team --</option>
-                                                                            {teams.length > 0 && teams.map((teamSelection, index) => (
-                                                                                <option value={teamSelection} selected={team === teamSelection}>
-                                                                                    {teamSelection}
+                                                                            {tournamentTeams.length > 0 && tournamentTeams.map((tournamentTeam) => (
+                                                                                <option value={tournamentTeam} selected={team === tournamentTeam}>
+                                                                                    {allTeams.filter(t => t._id === tournamentTeam).map(q => (<>{q.name}</>))}
                                                                                 </option>
                                                                             ))}
                                                                         </select>
@@ -331,11 +332,14 @@ export default class CreateTournaments extends Component {
                                                                         <label htmlFor={phaseIndex + "-" + groupIndex + "-" + teamRefIndex}>Team {teamRefIndex + 1}</label>
                                                                         <select id={phaseIndex + "-" + groupIndex + "-" + teamRefIndex} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamRefIndex)}>
                                                                             <option hidden disabled selected={teamRef === undefined}>-- select team --</option>
-                                                                            {phases[phaseIndex - 1].groups.map((groupInt, groupIntIndex) => (
+                                                                            {phases[phaseIndex - 1].groups.map((groupReference, groupReferenceIndex) => (
                                                                                 <>
-                                                                                    {groupInt.teams.map((_, rank) => (
-                                                                                        <option value={phaseIndex - 1 + "-" + groupIntIndex + "-" + rank}>
-                                                                                            Phase {phaseIndex - 1} - Group {groupIntIndex} - Rank{rank + 1}
+                                                                                    {groupReference.teams.map((_, rank) => (
+                                                                                        <option 
+                                                                                            value={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank} 
+                                                                                            selected={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank === 
+                                                                                                (teamRef===undefined ? undefined : teamRef.phase + "-" + teamRef.group + "-" + teamRef.rank)}>
+                                                                                                Phase {phaseIndex - 1} - Group {groupReferenceIndex} - Rank{rank + 1}
                                                                                         </option>
                                                                                     ))}
                                                                                 </>
