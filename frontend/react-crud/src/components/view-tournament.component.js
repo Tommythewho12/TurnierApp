@@ -19,7 +19,7 @@ class ViewTournament extends Component {
 
     componentDidMount() {
         this.retrieveTournament(this.props.router.params.id);
-        this.calculateStats();
+        // this.calculateStats();
     }
 
     retrieveTournament(id) {

@@ -50,9 +50,6 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
     const id = req.params.id;
 
-    // TODO extract function coming below to use in all fetch cases
-    // TODO move stats calculations server-side
-
     Tournament
         .findById(id)
         .populate({
@@ -61,9 +58,78 @@ exports.findOne = (req, res) => {
         .then(data => {
             if (!data)
                 res.status(404).send({ message: "Not found Tournament with id " + id });
-            else res.send(data);
+            else {
+                // TODO extract function coming below to use in all fetch cases
+                let tournament = {phases: [], teams: []};
+                for (let phase of tournament.phases) {
+                    for (let group of phase.groups) {
+                        if (group.teams != null) {
+                            const teamsMap = new Map();
+                            for (let team of group.teams) {
+                                teamsMap.set(team.toString(), {
+                                    score: 0, 
+                                    matchs: 0, 
+                                    wins: 0, 
+                                    losses: 0, 
+                                    draws: 0, 
+                                    pointsScored: 0, 
+                                    pointsSuffered: 0})
+                            }
+                            if (group.matchs != null) {
+                                for (let match of group.matchs) {
+                                    if (match != null && 
+                                        match.sets != null &&
+                                        match.homeTeam != null &&
+                                        match.guestTeam != null) {
+                                            const homeTeam = teamsMap.get(match.homeTeam.toString());
+                                            const guestTeam = teamsMap.get(match.guestTeam.toString());
+                                            homeTeam.matchs++;
+                                            guestTeam.matchs++;
+
+                                            let setsHome = 0, setsGuest = 0;
+                                            for (let set of match.sets) {
+                                                const scoreHome = Number(set.scoreHome);
+                                                const scoreGuest = Number(set.scoreGuest);
+                                                homeTeam.score += scoreHome;
+                                                guestTeam.score += scoreGuest;
+
+                                                if (scoreHome > scoreGuest) setsHome++;
+                                                else if (scoreHome < scoreGuest) setsGuest++;
+
+                                                homeTeam.pointsScored += scoreHome;
+                                                guestTeam.pointsScored += scoreGuest;
+
+                                                homeTeam.pointsSuffered += scoreGuest;
+                                                guestTeam.pointsSuffered += scoreHome;
+                                            }
+                                            if (setsHome > setsGuest) {
+                                                homeTeam.wins++;
+                                                guestTeam.losses++;
+                                            } else if (setsGuest > setsHome) {
+                                                homeTeam.losses++;
+                                                guestTeam.wins++;
+                                            } else {
+                                                homeTeam.draws++;
+                                                guestTeam.draws++;
+                                            }
+                                    }
+                                }
+                            }
+                            group.teams = Array.from(teamsMap, ([name, value]) => ({ name, value }));
+                            // group.teams = teamsMap;
+                            let x = tournament.phases[0].groups[0].teams;
+                            x = Array.from(teamsMap, ([name, value]) => ({ name, value }));
+                            tournament.phases[0].groups[0].teams = Array.from(teamsMap, ([name, value]) => ({ name, value }));
+                            console.log("waste");
+                        }
+                    }
+                }
+                res.send(tournament);
+            }
         })
         .catch(err => {
+            console.log("############## exception #################");
+            console.log(err);
             res
                 .status(500)
                 .send({ message: "Error retrieving Tournament with id=" + id });
