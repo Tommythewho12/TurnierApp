@@ -31,3 +31,8 @@
   background-color: var(--bs-warning-bg-subtle);
   color: var(--missing-content-text-color);
 }
+
+.winner > .winner-column::before {
+  content: "W";
+  color: aqua;
+}
