@@ -59,9 +59,6 @@ class ViewTournament extends Component {
                     match.sets.forEach(set => {
                         const scoreHome = Number(set.scoreHome), scoreGuest = Number(set.scoreGuest);
     
-                        homeTeam.score += scoreHome;
-                        guestTeam.score += scoreGuest;
-    
                         if (scoreHome > scoreGuest) setsHome++;
                         else if (scoreHome < scoreGuest) setsGuest++;
     
@@ -71,12 +68,16 @@ class ViewTournament extends Component {
                         guestTeam.pointsSuffered += scoreHome;
                     });
                     if (setsHome > setsGuest) {
+                        homeTeam.score += 2;
                         homeTeam.wins++;
                         guestTeam.losses++;
                     } else if (setsHome < setsGuest) {
+                        guestTeam.score += 2;
                         guestTeam.wins++;
                         homeTeam.losses++;
                     } else {
+                        homeTeam.score += 1;
+                        guestTeam.score += 1;
                         homeTeam.draws++;
                         guestTeam.draws++;
                     }
