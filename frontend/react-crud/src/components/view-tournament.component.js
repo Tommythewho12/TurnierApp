@@ -17,7 +17,6 @@ class ViewTournament extends Component {
 
     componentDidMount() {
         this.retrieveTournament(this.props.router.params.id);
-        this.calculateStats();
     }
 
     retrieveTournament(id) {
@@ -27,58 +26,65 @@ class ViewTournament extends Component {
                 this.setState({
                     tournament: response.data
                 });
+                this.enrichTeamStats(response.data);
             })
             .catch(e => {
                 console.log(e);
             });
     }
 
-    calculateStats() {
-        // this loop creates a map 'teams' and calculates the stats for each
-        this.state.tournament.phases[this.activePhase].groups.forEach(group => {
-            let teams = {};
-            group.matchs.forEach(match => {
-                const homeId = match.homeTeam.team._id, guestId = match.guestTeam.team._id;
-                if (!teams[homeId]) {
-                    teams[homeId] = {id: homeId, name: match.homeTeam.team.name, score: 0, matches: 0, wins: 0, losses: 0, draws: 0, pointsScored: 0, pointsSuffered: 0};
-                }
-                if (!teams[guestId]) {
-                    teams[guestId] = {id: guestId, name: match.guestTeam.team.name, score: 0, matches: 0, wins: 0, losses: 0, draws: 0, pointsScored: 0, pointsSuffered: 0};
-                }
-
-                teams[homeId].matches++;
-                teams[guestId].matches++;
-
-                let homeSets = 0, guestSets = 0;
-                match.sets.forEach(set => {
-                    const scoreHome = Number(set.scoreHome), scoreGuest = Number(set.scoreGuest);
-
-                    teams[homeId].score += scoreHome;
-                    teams[guestId].score += scoreGuest;
-
-                    if (scoreHome > scoreGuest) homeSets++;
-                    else if (scoreHome < scoreGuest) guestSets++;
-
-                    teams[homeId].pointsScored += scoreHome;
-                    teams[homeId].pointsSuffered += scoreGuest;
-                    teams[guestId].pointsScored += scoreGuest;
-                    teams[guestId].pointsSuffered += scoreHome;
-                });
-                if (homeSets > guestSets) {
-                    teams[homeId].wins++;
-                    teams[guestId].losses++;
-                } else if (homeSets < guestSets) {
-                    teams[guestId].wins++;
-                    teams[homeId].losses++;
-                } else {
-                    teams[homeId].draws++;
-                    teams[guestId].draws++;
+    enrichTeamStats(tournament) {
+        tournament.phases[this.state.activePhase].groups.forEach((group, groupIndex, groups) => {
+            group.teams = group.teams.map(team => (
+                {
+                    _id: team,
+                    name: tournament.teams.find(t => t._id === team).name,
+                    score: 0,
+                    matchs: 0,
+                    wins: 0,
+                    losss: 0,
+                    draws: 0,
+                    pointsScored: 0,
+                    pointsSuffered: 0
+                }));
+            group.matchs.forEach((match, matchIndex, matchs) => {
+                if (match.concluded) { // TODO this will not allow to see live results / allow only finished results
+                    const homeTeam = group.teams.find(t => t._id === match.homeTeam);
+                    const guestTeam = group.teams.find(t => t._id === match.guestTeam);
+    
+                    homeTeam.matchs++;
+                    guestTeam.matchs++;
+    
+                    let setsHome = 0, setsGuest = 0;
+                    match.sets.forEach(set => {
+                        const scoreHome = Number(set.scoreHome), scoreGuest = Number(set.scoreGuest);
+    
+                        homeTeam.score += scoreHome;
+                        guestTeam.score += scoreGuest;
+    
+                        if (scoreHome > scoreGuest) setsHome++;
+                        else if (scoreHome < scoreGuest) setsGuest++;
+    
+                        homeTeam.pointsScored += scoreHome;
+                        homeTeam.pointsSuffered += scoreGuest;
+                        guestTeam.pointsScored += scoreGuest;
+                        guestTeam.pointsSuffered += scoreHome;
+                    });
+                    if (setsHome > setsGuest) {
+                        homeTeam.wins++;
+                        guestTeam.losses++;
+                    } else if (setsHome < setsGuest) {
+                        guestTeam.wins++;
+                        homeTeam.losses++;
+                    } else {
+                        homeTeam.draws++;
+                        guestTeam.draws++;
+                    }
                 }
             });
-            group.teams = teams;
-            console.log("teams", teams)
         });
-        this.setState({tournament: {...this.state.tournament, phases: [...this.state.tournament.phases]}});
+        
+        this.setState({tournament: tournament});
     }
 
     getTeamName(teamId) {
@@ -88,6 +94,16 @@ class ViewTournament extends Component {
             }
         }
         return "n/a";
+    }
+
+    isWinnerHomeTeam(sets) {
+        return 
+    }
+
+    isWinnerGuestTeam(sets) {
+        console.log("sets", sets);
+        let x = sets.reduce((c, v) => v.scoreHome > v.scoreGuest ? c++ : c--, 0)
+        return x < 0;
     }
 
     render() {
@@ -115,12 +131,12 @@ class ViewTournament extends Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {group.teams && group.teams.map(team => (
+                                    {group.teams != null && group.teams.map(team => (
                                         <tr>
-                                            <td>{this.getTeamName(team)}</td>
-                                            <td>{team.matches}</td>
+                                            <td>{team.name}</td>
+                                            <td>{team.matchs}</td>
                                             <td>{team.wins}</td>
-                                            <td>{team.losses}</td>
+                                            <td>{team.losss}</td>
                                             <td>{team.score}</td>
                                             <td>{team.pointsScored} : {team.pointsSuffered}</td>
                                         </tr>
@@ -130,11 +146,11 @@ class ViewTournament extends Component {
                             <div className="matches">
                                 {group.matchs && group.matchs.map(match => (
                                     <div className="container match-container">
-                                        <div className="row home-row">
+                                        <div className={"row home-row " + (match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) > 0 && "winner")}>
                                             <div className="col team-name-col">
                                                 {this.getTeamName(match.homeTeam)}
                                             </div>
-                                            <div className="col score-col">
+                                            <div className="col score-col winner-column">
                                             </div>
                                             {match.sets && match.sets.map(set => (
                                                 <div className="col set-score-col">
@@ -142,12 +158,11 @@ class ViewTournament extends Component {
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="row guest-row">
+                                        <div className={"row guest-row " + (match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) < 0 && "winner")}>
                                             <div className="col team-name-col">
                                             {this.getTeamName(match.guestTeam)}
                                             </div>
-                                            <div className="col score-col">
-
+                                            <div className="col score-col winner-column">
                                             </div>
                                             {match.sets && match.sets.map(set => (
                                                 <div className="col set-score-col">
@@ -162,16 +177,16 @@ class ViewTournament extends Component {
                                 {group.matchs && group.matchs.map(match => (
                                     <div className="container match-container">
                                         <table className="table home-row">
-                                            <tr>
+                                        <tr className={(match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) > 0 && "winner")}>
                                                 <td>{this.getTeamName(match.homeTeam)}</td>
-                                                <td></td>
+                                                <td className="winner-column"></td>
                                                 {match.sets && match.sets.map(set => (
                                                     <td>{set.scoreHome}</td>
                                                 ))}
                                             </tr>
-                                            <tr>
+                                            <tr className={(match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) < 0 && "winner")}>
                                                 <td>{this.getTeamName(match.guestTeam)}</td>
-                                                <td></td>
+                                                <td className="winner-column"></td>
                                                 {match.sets && match.sets.map(set => (
                                                     <td>{set.scoreGuest}</td>
                                                 ))}
