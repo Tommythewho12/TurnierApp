@@ -110,7 +110,13 @@ export default class CreateTournaments extends Component {
 
     updateGroupSize(value, phaseIndex, groupIndex) {
         const newPhases = this.state.tournament.phases;
-        newPhases[phaseIndex].groups[groupIndex].teams = [];
+
+        if (phaseIndex === 0) {
+            newPhases[phaseIndex].groups[groupIndex].teams = [];
+        } else {
+            newPhases[phaseIndex].groups[groupIndex].teamReferences = [];
+        }
+
         for (let i = 0; i < Number(value); i++) {
             if (phaseIndex === 0) {
                 newPhases[phaseIndex].groups[groupIndex].teams.push(undefined);
@@ -157,10 +163,6 @@ export default class CreateTournaments extends Component {
                 }                
             }
         }
-    }
-
-    setNewTeamOrTeamReferenceValue(value, newPhases) {
-
     }
 
     createTournament() {
@@ -359,8 +361,16 @@ export default class CreateTournaments extends Component {
                                                                             <option hidden disabled selected={teamRef === undefined}>-- select team --</option>
                                                                             {phases[phaseIndex - 1].groups.map((groupReference, groupReferenceIndex) => (
                                                                                 <>
-                                                                                    {groupReference.teams.map((_, rank) => (
+                                                                                    {groupReference.teams != null && groupReference.teams.map((_, rank) => (
                                                                                         <option 
+                                                                                            value={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank} 
+                                                                                            selected={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank === 
+                                                                                                (teamRef===undefined ? undefined : teamRef.phase + "-" + teamRef.group + "-" + teamRef.rank)}>
+                                                                                                Phase {phaseIndex - 1} - Group {groupReferenceIndex} - Rank{rank + 1}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                    {groupReference.teamReferences != null && groupReference.teamReferences.map((_, rank) => (
+                                                                                            <option
                                                                                             value={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank} 
                                                                                             selected={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank === 
                                                                                                 (teamRef===undefined ? undefined : teamRef.phase + "-" + teamRef.group + "-" + teamRef.rank)}>
