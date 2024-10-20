@@ -4,6 +4,7 @@ const Tournament = db.tournaments;
 // Create and Save a new Tournament
 exports.create = (req, res) => {
     // Validate request
+    // TODO improve validations!
     if (!req.body.name) {
         res.status(400).send({ message: "Name can not be empty!" });
         return;
@@ -49,7 +50,14 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
     const id = req.params.id;
 
-    Tournament.findById(id)
+    // TODO extract function coming below to use in all fetch cases
+    // TODO move stats calculations server-side
+
+    Tournament
+        .findById(id)
+        .populate({
+            path: "teams"
+        })
         .then(data => {
             if (!data)
                 res.status(404).send({ message: "Not found Tournament with id " + id });
