@@ -36,18 +36,20 @@ class ViewTournament extends Component {
     enrichTeamStats(tournament) {
         tournament.phases.forEach((phase, phaseIndex, phases) => {
             phase.groups.forEach((group, groupIndex, groups) => {
-                group.teams = group.teams.map(team => (
-                    {
-                        _id: team,
-                        name: tournament.teams.find(t => t._id === team).name,
-                        score: 0,
-                        matchs: 0,
-                        wins: 0,
-                        losss: 0,
-                        draws: 0,
-                        pointsScored: 0,
-                        pointsSuffered: 0
-                    }));
+                if (group.teams != undefined && group.teams.length > 0) {
+                    group.teams = group.teams.map(team => (
+                        {
+                            _id: team,
+                            name: tournament.teams.find(t => t._id === team).name,
+                            score: 0,
+                            matchs: 0,
+                            wins: 0,
+                            losss: 0,
+                            draws: 0,
+                            pointsScored: 0,
+                            pointsSuffered: 0
+                        }));
+                }
                 group.matchs.forEach((match, matchIndex, matchs) => {
                     if (match.concluded) { // TODO this will not allow to see live results / allow only finished results
                         const homeTeam = group.teams.find(t => t._id === match.homeTeam);
@@ -87,7 +89,7 @@ class ViewTournament extends Component {
             });
         });
         
-        
+        console.log("tournament: ", tournament);
         this.setState({tournament: tournament});
     }
 
@@ -98,6 +100,18 @@ class ViewTournament extends Component {
             }
         }
         return "n/a";
+    }
+
+    getDescriptionFromTeamReference(teamRef) {
+        let result = "";
+        switch(teamRef.rank) {
+            case 0: result += "1st"; break;
+            case 1: result += "2nd"; break;
+            case 2: result += "3rd"; break;
+            default: result += (teamRef.rank + 1) + "th";
+        }
+        result += " place of group " + (teamRef.group + 1);
+        return result;
     }
 
     render() {
@@ -140,6 +154,16 @@ class ViewTournament extends Component {
                                             <td>{team.losss}</td>
                                             <td>{team.score}</td>
                                             <td>{team.pointsScored} : {team.pointsSuffered}</td>
+                                        </tr>
+                                    ))}
+                                    {group.teamReferences != null && group.teamReferences.map(teamRef => (
+                                        <tr>
+                                            <td>{this.getDescriptionFromTeamReference(teamRef)}</td>
+                                            <td>0</td>
+                                            <td>0</td>
+                                            <td>0</td>
+                                            <td>0</td>
+                                            <td>0 : 0</td>
                                         </tr>
                                     ))}
                                 </tbody>
