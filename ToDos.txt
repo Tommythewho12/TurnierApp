@@ -10,35 +10,10 @@ React Frontend starten mit
 
 ####### Issues #######
 
-- views
-    - group <============ in progress <============
-    - tree/tournament
-    - timetable
-    - create tournament
-        - create baseline (name, phases, groups (with noOfTeams)) (done)
-        - edit tournament by adding teams, matches, (done)
-        - and teamReferences (done)
-
-- create controls for matches/groups/rounds
-    - set scores
-    - set teams (done)
-
-- refactorings
-    - create new class field in order to assign matches to fields
-    - import typescript to code
-    - rename "team" to "participant"
-    - matches must accomodate either a team or a reference to the winner/loser of another match (done)
-    - reformat folder structure
-        - https://stackoverflow.com/questions/51126472/how-to-organise-file-structure-of-backend-and-frontend-in-mern
-        - https://dev.to/itswillt/folder-structures-in-react-projects-3dp8
-    - reformat routes
-        - https://dev.to/kachiic/the-right-way-structure-your-react-router-1i3l
-    - expand tournament api to accept phases and groups and create them backend-side (instead of sending requests for each phase&group) (done)
-    - flip mongoose schemas around: instead of tournament <-- phases : tournament.phases[{type: mongoose.Schema.Types.ObjectId, ref: "phase"}] (done)
-
 - new features
-    - add times to matches
-    - add times to phases
+    - create new db entity "field" in order to assign matches to fields
+        - add times to matches
+        - add times to phases
     - create qr codes with link to management-match-view
     - internationalization
     - add authentication for admin
@@ -47,13 +22,33 @@ React Frontend starten mit
         - https://www.w3schools.com/react/react_router.asp
     - add check, so that a team cannot appear multiple times in a single group / in a single phase (done)
 
+    - views
+        - group <============ in progress <============
+        - tree/tournament
+        - timetable
+
+    - create controls for matches/groups/rounds
+        - set scores
+        - set sets
+
+    - set tournament specific rules
+        - sets per game
+        - winning score
+        - tie break rules - text only at first
+    - display tournament rules
+
+
+- refactorings
+    - import typescript to code
+    - rename "team" to "participant"
+    - reformat folder structure
+        - https://stackoverflow.com/questions/51126472/how-to-organise-file-structure-of-backend-and-frontend-in-mern
+        - https://dev.to/itswillt/folder-structures-in-react-projects-3dp8
+    - reformat routes
+        - https://dev.to/kachiic/the-right-way-structure-your-react-router-1i3l
+
 - infrastructure
     - put app on raspberryPi3
-
-???
-    - create tournament class for persistence (done)
-        - extend phase with tournamentId (done)
-        - extend team/participant with tournament id (done)
 
 - research
     - html forms read about: "htmlFor"
