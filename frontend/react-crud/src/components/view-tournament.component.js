@@ -8,7 +8,7 @@ class ViewTournament extends Component {
 
         this.state = {
             // page controls
-            activePhase: 0,
+            activePhase: -1,
 
             // data
             tournament: {}
@@ -34,56 +34,59 @@ class ViewTournament extends Component {
     }
 
     enrichTeamStats(tournament) {
-        tournament.phases[this.state.activePhase].groups.forEach((group, groupIndex, groups) => {
-            group.teams = group.teams.map(team => (
-                {
-                    _id: team,
-                    name: tournament.teams.find(t => t._id === team).name,
-                    score: 0,
-                    matchs: 0,
-                    wins: 0,
-                    losss: 0,
-                    draws: 0,
-                    pointsScored: 0,
-                    pointsSuffered: 0
-                }));
-            group.matchs.forEach((match, matchIndex, matchs) => {
-                if (match.concluded) { // TODO this will not allow to see live results / allow only finished results
-                    const homeTeam = group.teams.find(t => t._id === match.homeTeam);
-                    const guestTeam = group.teams.find(t => t._id === match.guestTeam);
-    
-                    homeTeam.matchs++;
-                    guestTeam.matchs++;
-    
-                    let setsHome = 0, setsGuest = 0;
-                    match.sets.forEach(set => {
-                        const scoreHome = Number(set.scoreHome), scoreGuest = Number(set.scoreGuest);
-    
-                        if (scoreHome > scoreGuest) setsHome++;
-                        else if (scoreHome < scoreGuest) setsGuest++;
-    
-                        homeTeam.pointsScored += scoreHome;
-                        homeTeam.pointsSuffered += scoreGuest;
-                        guestTeam.pointsScored += scoreGuest;
-                        guestTeam.pointsSuffered += scoreHome;
-                    });
-                    if (setsHome > setsGuest) {
-                        homeTeam.score += 2;
-                        homeTeam.wins++;
-                        guestTeam.losses++;
-                    } else if (setsHome < setsGuest) {
-                        guestTeam.score += 2;
-                        guestTeam.wins++;
-                        homeTeam.losses++;
-                    } else {
-                        homeTeam.score += 1;
-                        guestTeam.score += 1;
-                        homeTeam.draws++;
-                        guestTeam.draws++;
+        tournament.phases.forEach((phase, phaseIndex, phases) => {
+            phase.groups.forEach((group, groupIndex, groups) => {
+                group.teams = group.teams.map(team => (
+                    {
+                        _id: team,
+                        name: tournament.teams.find(t => t._id === team).name,
+                        score: 0,
+                        matchs: 0,
+                        wins: 0,
+                        losss: 0,
+                        draws: 0,
+                        pointsScored: 0,
+                        pointsSuffered: 0
+                    }));
+                group.matchs.forEach((match, matchIndex, matchs) => {
+                    if (match.concluded) { // TODO this will not allow to see live results / allow only finished results
+                        const homeTeam = group.teams.find(t => t._id === match.homeTeam);
+                        const guestTeam = group.teams.find(t => t._id === match.guestTeam);
+        
+                        homeTeam.matchs++;
+                        guestTeam.matchs++;
+        
+                        let setsHome = 0, setsGuest = 0;
+                        match.sets.forEach(set => {
+                            const scoreHome = Number(set.scoreHome), scoreGuest = Number(set.scoreGuest);
+        
+                            if (scoreHome > scoreGuest) setsHome++;
+                            else if (scoreHome < scoreGuest) setsGuest++;
+        
+                            homeTeam.pointsScored += scoreHome;
+                            homeTeam.pointsSuffered += scoreGuest;
+                            guestTeam.pointsScored += scoreGuest;
+                            guestTeam.pointsSuffered += scoreHome;
+                        });
+                        if (setsHome > setsGuest) {
+                            homeTeam.score += 2;
+                            homeTeam.wins++;
+                            guestTeam.losses++;
+                        } else if (setsHome < setsGuest) {
+                            guestTeam.score += 2;
+                            guestTeam.wins++;
+                            homeTeam.losses++;
+                        } else {
+                            homeTeam.score += 1;
+                            guestTeam.score += 1;
+                            homeTeam.draws++;
+                            guestTeam.draws++;
+                        }
                     }
-                }
+                });
             });
         });
+        
         
         this.setState({tournament: tournament});
     }
@@ -97,25 +100,22 @@ class ViewTournament extends Component {
         return "n/a";
     }
 
-    isWinnerHomeTeam(sets) {
-        return 
-    }
-
-    isWinnerGuestTeam(sets) {
-        console.log("sets", sets);
-        let x = sets.reduce((c, v) => v.scoreHome > v.scoreGuest ? c++ : c--, 0)
-        return x < 0;
-    }
-
     render() {
         const { activePhase, tournament } = this.state;
 
         return (
             <div className="row">
-                <div className="col-3"></div>
+                <div className="col-3">
+                    <div className="list-group">
+                        <div className={"list-group-item list-group-item-action " + (activePhase === -1 ? "active" : "")} onClick={() => this.setState({activePhase: -1})}>Overview</div>
+                        {tournament && tournament.phases && tournament.phases.map((phase, phaseIndex) =>
+                            <div className={"list-group-item list-group-item-action " + (activePhase === phaseIndex ? "active" : "")} onClick={() => this.setState({activePhase: phaseIndex})}>Phase { phaseIndex + 1 }</div>
+                        )}
+                    </div>
+                </div>
                 <div className="col-9">
                     <h4>Tournaments</h4>
-                    {tournament && tournament.phases && tournament.phases[activePhase].groups.map((group, groupIndex) => (
+                    {tournament && tournament.phases && activePhase >= 0 && tournament.phases[activePhase].groups.map((group, groupIndex) => (
                         <div className="group-container">
                         <div className="group-header">
                         </div>
