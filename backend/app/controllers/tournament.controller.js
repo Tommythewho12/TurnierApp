@@ -34,7 +34,8 @@ exports.create = (req, res) => {
 // Retrieve all Tournaments from the database.
 exports.findAll = (req, res) => {
 
-    Tournament.find()
+    Tournament
+        .find()
         .then(data => {
             res.send(data);
         })
@@ -80,7 +81,8 @@ exports.update = (req, res) => {
 
     const id = req.params.id;
 
-    Tournament.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    Tournament
+        .findByIdAndUpdate(id, req.body, { useFindAndModify: false })
         .then(data => {
             if (!data) {
                 res.status(404).send({
@@ -99,7 +101,8 @@ exports.update = (req, res) => {
 exports.delete = (req, res) => {
     const id = req.params.id;
 
-    Tournament.findByIdAndRemove(id)
+    Tournament
+        .findByIdAndRemove(id)
         .then(data => {
             if (!data) {
                 res.status(404).send({
@@ -120,7 +123,8 @@ exports.delete = (req, res) => {
 
 // Delete all Tournaments from the database.
 exports.deleteAll = (req, res) => {
-    Tournament.deleteMany({})
+    Tournament
+        .deleteMany({})
         .then(data => {
             res.send({
                 message: `${data.deletedCount} Tournaments were deleted successfully!`
@@ -131,5 +135,36 @@ exports.deleteAll = (req, res) => {
                 message:
                     err.message || "Some error occurred while removing all tournaments."
             });
+        });
+};
+
+// Matches
+// Find a single Match
+exports.findMatch = (req, res) => {
+    const tournamentId = req.params.tournamentId;
+    const phase = req.params.phase;
+    const group = req.params.group;
+    const match = req.params.match;
+
+    Tournament
+        .findById(id)
+        .populate("phases.groups.matchs.homeTeam")
+        .populate("phases.groups.matchs.guestTeam")
+        .then(data => {
+            if (!data)
+                res.status(404).send({ message: "Not found Tournament with id " + tournamentId });
+            if (!data.phases[phase])
+                res.status(404).send({ message: "Not found phase " + phase + " for Tournament with id " + tournamentId });
+            if (!data.phases[phase].groups[group])
+                res.status(404).send({ message: "Not found group " + group + " in phase + " + phase + " for Tournament with id " + tournamentId });
+            if (!data.phases[phase].groups[group].matchs[match])
+                res.status(404).send({ message: "Not found match " + match + " in group " + group + " in phase + " + phase + " for Tournament with id " + tournamentId });
+            
+            res.send({match: data.phases[phase].groups[group].matchs[match]});
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .send({ message: "Error retrieving Tournament with id=" + tournamentId });
         });
 };
