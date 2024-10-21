@@ -5,8 +5,6 @@ import { withRouter } from '../common/with-router';
 class ViewTournament extends Component {
     constructor(props) {
         super(props);
-        // this.retrieveTournament = this.retrieveTournament.bind(this);
-        // this.getTeamName = this.getTeamName.bind(this);
 
         this.state = {
             // page controls
@@ -25,6 +23,7 @@ class ViewTournament extends Component {
     retrieveTournament(id) {
         TournamentDataService.get(id)
             .then(response => {
+                console.log(response.data);
                 this.setState({
                     tournament: response.data
                 });

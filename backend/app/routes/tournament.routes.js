@@ -20,6 +20,10 @@ module.exports = app => {
   
     // Delete all Tournaments
     router.delete("/", tournaments.deleteAll);
+
+    // Matchs
+    // Retrieve a single Match
+    router.get("/:id/phases/:phase/groups/:group/matchs/:match", tournaments.findMatch);
   
     app.use('/api/tournaments', router);
   };

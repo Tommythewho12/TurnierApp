@@ -10,7 +10,8 @@ import ViewTournament from "./components/view-tournament.component.js";
 import Tutorial from "./components/tutorial.component";
 import TutorialsList from "./components/tutorials-list.component.js";
 import AddTeam from "./components/add-team.component";
-import TeamsList from "./components/teams-list.component.js"
+import TeamsList from "./components/teams-list.component.js";
+import EditMatch from "./components/edit-match.component.js";
 
 class App extends Component {
   render() {
@@ -41,6 +42,11 @@ class App extends Component {
                 Add Team
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to={"/matchs"} className="nav-link">
+                Edit Match
+              </Link>
+            </li>
           </div>
         </nav>
 
@@ -57,6 +63,8 @@ class App extends Component {
 
             <Route path="/add" element={<AddTeam />} />
             <Route path="/teams" element={<TeamsList />} />
+
+            <Route path="/matchs/" element={<EditMatch />} />
           </Routes>
         </div>
       </div>

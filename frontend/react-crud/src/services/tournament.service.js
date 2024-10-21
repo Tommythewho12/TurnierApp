@@ -25,8 +25,9 @@ class TournamentDataService {
         return http.delete(`/tournaments`);
     }
 
-    findByTitle(title) {
-        return http.get(`/tournaments?title=${title}`);
+    // Matchs
+    getMatch(data) {
+        return http.get(`/tournaments/${data.tournamentId}/phases/${data.phase}/groups/${data.group}/matchs/${data.match}`);
     }
 }
 
