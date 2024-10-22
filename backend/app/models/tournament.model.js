@@ -5,24 +5,32 @@ module.exports = mongoose => {
         rank: Number
     });
 
+    const SetSchema = new mongoose.Schema({
+        scoreHome: { type: Number, default: 0 },
+        scoreGuest: { type: Number, default: 0 },
+        concluded: { type: Boolean, default: false }
+    });
+
     const MatchSchema = new mongoose.Schema({
         order: Number,
         homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
         guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
-        sets: [],
+        sets: [ SetSchema ],
         concluded: { type: Boolean, default: false }
     });
 
     const GroupSchema = new mongoose.Schema({
         order: Number,
         teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "team" }],
-        teamReferences: [TeamReferenceSchema],
-        matchs: [MatchSchema]
+        teamReferences: [ TeamReferenceSchema ],
+        matchs: [ MatchSchema ],
+        concluded: { type: Boolean, default: false }
     });
 
     const PhaseSchema = new mongoose.Schema({
         order: Number,
-        groups: [GroupSchema]
+        groups: [ GroupSchema ],
+        concluded: { type: Boolean, default: false }
     });
 
     const Tournament = mongoose.model(
@@ -31,7 +39,7 @@ module.exports = mongoose => {
             {
                 name: String,
                 teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "team" }],
-                phases: [PhaseSchema]
+                phases: [ PhaseSchema ]
             }
         )
     );
