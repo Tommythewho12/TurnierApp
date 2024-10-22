@@ -147,7 +147,7 @@ exports.findMatch = (req, res) => {
     const match = req.params.match;
 
     Tournament
-        .findById(id)
+        .findById(tournamentId)
         .populate("phases.groups.matchs.homeTeam")
         .populate("phases.groups.matchs.guestTeam")
         .then(data => {
