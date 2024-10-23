@@ -54,13 +54,39 @@ class EditMatch extends Component {
             });
     }
 
-    concludeSet(setIndex) {
+    increaseScoreHome() { // TODO persist data
+        const newSets = [...this.state.sets];
+        newSets[newSets.length-1].scoreHome++;
+        this.setState({
+            sets: newSets
+        });
+    }
+
+    increaseScoreGuest() { // TODO persist data
+        const newSets = [...this.state.sets];
+        newSets[newSets.length-1].scoreGuest++;
+        this.setState({
+            sets: newSets
+        });
+    }
+    
+    addSet() { // TODO persist data
+        this.setState({
+            sets: [...this.state.sets, {
+                concluded: false,
+                scoreHome: 0,
+                scoreGuest: 0
+            }]
+        })
+    }
+
+    concludeSet(setIndex) { // TODO persist data
         const newSets = this.state.sets;
         newSets[setIndex].concluded = true;
         this.setState({sets: newSets});
     }
 
-    concludeMatch() {
+    concludeMatch() { // TODO persist data
         this.setState({concluded: true});
     }
 
@@ -83,7 +109,6 @@ class EditMatch extends Component {
 
     debug() {
         console.log("this.state.matchData", this.state);
-        this.setState({concluded: false});
     }
 
     render() {
@@ -106,25 +131,42 @@ class EditMatch extends Component {
                         </div>
                 </div>
                 {sets && sets.length > 0 && sets.map((set, setIndex) => (
-                    <div className="row justify-content-center">
-                        <div className="col-4">
-                            <h2>{set.scoreHome}</h2>
+                    <>
+                        <div className="row justify-content-center">
+                            <div className="col-4">
+                                <h2>
+                                    {set.concluded === false && <button className="btn btn-success" onClick={() => this.increaseScoreHome()}>+</button>}
+                                    {set.scoreHome}</h2>
+                            </div>
+                            <div className="col-1">
+                                {set.concluded === false && (
+                                    <button className="btn btn-info" onClick={() => this.concludeSet(setIndex)}>conclude set</button>
+                                )}
+                            </div>
+                            <div className="col-4">
+                                <h2>
+                                    {set.scoreGuest}
+                                    {set.concluded === false && <button className="btn btn-success" onClick={() => this.increaseScoreGuest()}>+</button>}
+                                </h2>
+                            </div>
                         </div>
-                        <div className="col-1"></div>
-                        <div className="col-4">
-                            <h2>{set.scoreGuest}</h2>
-                        </div>
-                    </div>
+                        {sets.length-1 === setIndex && set.concluded && concluded === false && (
+                            <div className="row justify-content-center">
+                                <div className="col-2">
+                                    <button className="btn btn-info" onClick={() => this.addSet()}>
+                                        + new Set
+                                    </button>
+                                </div>
+                                <div className="col-2">
+                                    <button className="btn btn-info" onClick={() => this.concludeMatch()}>
+                                        Upload Match
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 ))}
-                {concluded === false && (
-                    <div className="row justify-content-center">
-                        <div className="col-2">
-                            <button className="btn btn-info" onClick={() => this.concludeMatch()}>
-                                Upload Score
-                            </button>
-                        </div>
-                    </div>
-                )}
+                
             </div>
         );        
     }
