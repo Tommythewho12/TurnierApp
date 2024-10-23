@@ -168,3 +168,18 @@ exports.findMatch = (req, res) => {
                 .send({ message: "Error retrieving Tournament with id=" + tournamentId });
         });
 };
+
+// Update a single Match
+exports.updateMatch = (req, res) => {
+    const tournamentId = req.params.tournamentId;
+    const phase = req.params.phase;
+    const group = req.params.group;
+    const match = req.params.match;
+
+    // Tournament
+    //     .update(
+    //         { 
+    //         },
+    //         {}
+    //     )
+}
