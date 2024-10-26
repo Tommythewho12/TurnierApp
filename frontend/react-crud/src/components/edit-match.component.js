@@ -9,7 +9,7 @@ class EditMatch extends Component {
         this.phase = this.props.router.params.phase;
         this.group = this.props.router.params.group;
         this.match = this.props.router.params.match;
-        
+
         this.state = {
             // page controls
             activePhase: 0,
@@ -25,7 +25,7 @@ class EditMatch extends Component {
     }
 
     componentDidMount() {
-        this.retrieveMatch();
+        this.retrieveMatch2();
     }
 
     retrieveMatch() {
@@ -39,8 +39,34 @@ class EditMatch extends Component {
             .then(response => {
                 console.log("response", response);
                 const match = response.data.match;
-                this.setState({ 
-                    homeTeamId: match.homeTeam._id, 
+                this.setState({
+                    homeTeamId: match.homeTeam._id,
+                    guestTeamId: match.guestTeam._id,
+                    homeTeamName: match.homeTeam.name,
+                    guestTeamName: match.guestTeam.name,
+                    sets: match.sets,
+                    concluded: match.concluded
+                });
+                console.log("this.state.matchData", this.state.matchData);
+            })
+            .catch(e => {
+                console.log(e);
+            });
+    }
+
+    retrieveMatch2() {
+        TournamentDataService
+            .getMatch2({
+                tournamentId: "67156bd76f8bfe42692f0ece",// this.tournamentId,
+                phaseId: "67156bd76f8bfe42692f0ecf", // this.phase,
+                groupId: "67156bd76f8bfe42692f0ed0", // this.group,
+                matchId: "67156bd76f8bfe42692f0ed2" // this.match
+            })
+            .then(response => {
+                console.log("response", response);
+                const match = response.data.match;
+                this.setState({
+                    homeTeamId: match.homeTeam._id,
                     guestTeamId: match.guestTeam._id,
                     homeTeamName: match.homeTeam.name,
                     guestTeamName: match.guestTeam.name,
@@ -56,7 +82,7 @@ class EditMatch extends Component {
 
     increaseScoreHome() { // TODO persist data
         const newSets = [...this.state.sets];
-        newSets[newSets.length-1].scoreHome++;
+        newSets[newSets.length - 1].scoreHome++;
         this.setState({
             sets: newSets
         });
@@ -64,12 +90,12 @@ class EditMatch extends Component {
 
     increaseScoreGuest() { // TODO persist data
         const newSets = [...this.state.sets];
-        newSets[newSets.length-1].scoreGuest++;
+        newSets[newSets.length - 1].scoreGuest++;
         this.setState({
             sets: newSets
         });
     }
-    
+
     addSet() { // TODO persist data
         this.setState({
             sets: [...this.state.sets, {
@@ -80,24 +106,46 @@ class EditMatch extends Component {
         })
     }
 
-    concludeSet(setIndex) { // TODO persist data
+    concludeSet() { // TODO persist data
         const newSets = this.state.sets;
-        newSets[setIndex].concluded = true;
-        this.setState({sets: newSets});
+        newSets[newSets.length - 1].concluded = true;
+        this.setState({ sets: newSets });
+
+        this.updateSet();
+    }
+
+    updateSet() {
+        const newSets = this.state.sets;
+        const newSet = newSets[newSets.length - 1];
+        TournamentDataService
+            .updateSet({
+                tournamentId: "67156bd76f8bfe42692f0ece",// this.tournamentId,
+                phaseId: "67156bd76f8bfe42692f0ecf", // this.phase,
+                groupId: "67156bd76f8bfe42692f0ed0", // this.group,
+                matchId: "67156bd76f8bfe42692f0ed2", // this.match
+                set: newSet
+            })
+            .then(res => {
+                console.log(res);
+            })
+            .catch(e => {
+                console.log(e);
+            });
     }
 
     concludeMatch() { // TODO persist data
-        this.setState({concluded: true});
+        this.setState({ concluded: true });
     }
 
     updateMatch(match) {
         TournamentDataService
-            .updateMatch({
+            .updateSet({
                 tournamentId: "67156bd76f8bfe42692f0ece",// this.tournamentId,
-                phase: "0", // this.phase,
-                group: "0", // this.group,
-                match: "1", // this.match
-                data: match
+                phaseId: "67156bd76f8bfe42692f0ecf", // this.phase,
+                groupId: "67156bd76f8bfe42692f0ed0", // this.group,
+                matchId: "67156bd76f8bfe42692f0ed2", // this.match
+                setId: "?", // this.set
+                set: match
             })
             .then(res => {
                 console.log(res);
@@ -128,7 +176,7 @@ class EditMatch extends Component {
                     <div className="col-1"></div>
                     <div className="col-4">
                         <h2>{guestTeamName}</h2>
-                        </div>
+                    </div>
                 </div>
                 {sets && sets.length > 0 && sets.map((set, setIndex) => (
                     <>
@@ -150,7 +198,7 @@ class EditMatch extends Component {
                                 </h2>
                             </div>
                         </div>
-                        {sets.length-1 === setIndex && set.concluded && concluded === false && (
+                        {sets.length - 1 === setIndex && set.concluded && concluded === false && (
                             <div className="row justify-content-center">
                                 <div className="col-2">
                                     <button className="btn btn-info" onClick={() => this.addSet()}>
@@ -166,9 +214,9 @@ class EditMatch extends Component {
                         )}
                     </>
                 ))}
-                
+
             </div>
-        );        
+        );
     }
 }
 

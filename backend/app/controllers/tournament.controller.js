@@ -159,8 +159,28 @@ exports.findMatch = (req, res) => {
                 res.status(404).send({ message: "Not found group " + group + " in phase + " + phase + " for Tournament with id " + tournamentId });
             if (!data.phases[phase].groups[group].matchs[match])
                 res.status(404).send({ message: "Not found match " + match + " in group " + group + " in phase + " + phase + " for Tournament with id " + tournamentId });
-            
-            res.send({match: data.phases[phase].groups[group].matchs[match]});
+
+            res.send({ match: data.phases[phase].groups[group].matchs[match] });
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .send({ message: "Error retrieving Tournament with id=" + tournamentId });
+        });
+};
+// Find a single Match2
+exports.findMatch2 = (req, res) => {
+    const tournamentId = req.params.tournamentId;
+    const phaseId = req.params.phaseId;
+    const groupId = req.params.groupId;
+    const matchId = req.params.matchId;
+
+    Tournament
+        .findById(tournamentId)
+        .populate("phases.groups.matchs.homeTeam")
+        .populate("phases.groups.matchs.guestTeam")
+        .then(data => {
+            res.send({ match: data.phases.id(phaseId).groups.id(groupId).matchs.id(matchId) });
         })
         .catch(err => {
             res
@@ -170,16 +190,45 @@ exports.findMatch = (req, res) => {
 };
 
 // Update a single Match
-exports.updateMatch = (req, res) => {
+exports.updateSet = (req, res) => {
     const tournamentId = req.params.tournamentId;
-    const phase = req.params.phase;
-    const group = req.params.group;
-    const match = req.params.match;
+    const phaseId = req.params.phaseId;
+    const groupId = req.params.groupId;
+    const matchId = req.params.matchId;
+    const setId = req.params.setId;
+    const newSet = req.body;
 
-    // Tournament
-    //     .update(
-    //         { 
-    //         },
-    //         {}
-    //     )
+    Tournament
+        .updateOne(
+            {
+                "_id": tournamentId,
+                "phases._id": phaseId,
+                "phases.groups._id": groupId,
+                "phases.groups.matchs._id": matchId,
+                "phases.groups.matchs.sets._id": setId
+            },
+            {
+                $set: {
+                    [`phases.$[p].groups.$[g].matchs.$[m].sets.$[s].scoreHome`]: newSet.scoreHome,
+                    [`phases.$[p].groups.$[g].matchs.$[m].sets.$[s].scoreGuest`]: newSet.scoreGuest,
+                    [`phases.$[p].groups.$[g].matchs.$[m].sets.$[s].concluded`]: newSet.concluded
+                }
+            },
+            {
+                arrayFilters: [
+                    { "p._id": phaseId },
+                    { "g._id": groupId },
+                    { "m._id": matchId },
+                    { "s._id": setId }
+                ]
+            }
+        )
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .send({ message: "Error updating Set id=" + setId });
+        });
 }

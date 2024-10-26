@@ -6,6 +6,7 @@ module.exports = mongoose => {
     });
 
     const SetSchema = new mongoose.Schema({
+        order: Number,
         scoreHome: { type: Number, default: 0 },
         scoreGuest: { type: Number, default: 0 },
         concluded: { type: Boolean, default: false }
