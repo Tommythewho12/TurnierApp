@@ -139,37 +139,8 @@ exports.deleteAll = (req, res) => {
 };
 
 // Matches
-// Find a single Match
-exports.findMatch = (req, res) => {
-    const tournamentId = req.params.tournamentId;
-    const phase = req.params.phase;
-    const group = req.params.group;
-    const match = req.params.match;
-
-    Tournament
-        .findById(tournamentId)
-        .populate("phases.groups.matchs.homeTeam")
-        .populate("phases.groups.matchs.guestTeam")
-        .then(data => {
-            if (!data)
-                res.status(404).send({ message: "Not found Tournament with id " + tournamentId });
-            if (!data.phases[phase])
-                res.status(404).send({ message: "Not found phase " + phase + " for Tournament with id " + tournamentId });
-            if (!data.phases[phase].groups[group])
-                res.status(404).send({ message: "Not found group " + group + " in phase + " + phase + " for Tournament with id " + tournamentId });
-            if (!data.phases[phase].groups[group].matchs[match])
-                res.status(404).send({ message: "Not found match " + match + " in group " + group + " in phase + " + phase + " for Tournament with id " + tournamentId });
-
-            res.send({ match: data.phases[phase].groups[group].matchs[match] });
-        })
-        .catch(err => {
-            res
-                .status(500)
-                .send({ message: "Error retrieving Tournament with id=" + tournamentId });
-        });
-};
 // Find a single Match2
-exports.findMatch2 = (req, res) => {
+exports.findMatch = (req, res) => {
     const tournamentId = req.params.tournamentId;
     const phaseId = req.params.phaseId;
     const groupId = req.params.groupId;

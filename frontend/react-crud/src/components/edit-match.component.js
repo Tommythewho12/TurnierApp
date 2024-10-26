@@ -25,38 +25,12 @@ class EditMatch extends Component {
     }
 
     componentDidMount() {
-        this.retrieveMatch2();
+        this.retrieveMatch();
     }
 
     retrieveMatch() {
         TournamentDataService
             .getMatch({
-                tournamentId: "67156bd76f8bfe42692f0ece",// this.tournamentId,
-                phase: "0", // this.phase,
-                group: "0", // this.group,
-                match: "1" // this.match
-            })
-            .then(response => {
-                console.log("response", response);
-                const match = response.data.match;
-                this.setState({
-                    homeTeamId: match.homeTeam._id,
-                    guestTeamId: match.guestTeam._id,
-                    homeTeamName: match.homeTeam.name,
-                    guestTeamName: match.guestTeam.name,
-                    sets: match.sets,
-                    concluded: match.concluded
-                });
-                console.log("this.state.matchData", this.state.matchData);
-            })
-            .catch(e => {
-                console.log(e);
-            });
-    }
-
-    retrieveMatch2() {
-        TournamentDataService
-            .getMatch2({
                 tournamentId: "67156bd76f8bfe42692f0ece",// this.tournamentId,
                 phaseId: "67156bd76f8bfe42692f0ecf", // this.phase,
                 groupId: "67156bd76f8bfe42692f0ed0", // this.group,
