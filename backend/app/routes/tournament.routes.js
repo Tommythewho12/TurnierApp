@@ -23,10 +23,7 @@ module.exports = app => {
 
   // Matchs
   // Retrieve a single Match
-  router.get("/:tournamentId/phases/:phase/groups/:group/matchs/:match", tournaments.findMatch);
-
-  // Retrieve a single Match2
-  router.get("/test/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId", tournaments.findMatch2);
+  router.get("/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId", tournaments.findMatch);
 
   router.patch("/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId/sets/:setId", tournaments.updateSet);
 
