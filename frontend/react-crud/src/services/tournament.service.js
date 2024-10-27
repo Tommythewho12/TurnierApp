@@ -26,9 +26,8 @@ class TournamentDataService {
     }
 
     // Matchs
-    // TODO use different variable name than 'data'
-    getMatch(data) {
-        return http.get(`/tournaments/${data.tournamentId}/phases/${data.phaseId}/groups/${data.groupId}/matchs/${data.matchId}`);
+    getMatch(matchId) {
+        return http.get(`/matchs/${matchId}`);
     }
 
     // TODO use different variable name than 'data'

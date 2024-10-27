@@ -64,7 +64,7 @@ class App extends Component {
             <Route path="/add" element={<AddTeam />} />
             <Route path="/teams" element={<TeamsList />} />
 
-            <Route path="/matchs/" element={<EditMatch />} />
+            <Route path="/matchs/:matchId" element={<EditMatch />} />
           </Routes>
         </div>
       </div>

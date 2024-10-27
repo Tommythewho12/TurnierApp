@@ -5,10 +5,10 @@ import { withRouter } from '../common/with-router';
 class EditMatch extends Component {
     constructor(props) {
         super(props);
-        this.tournamentId = "67156bd76f8bfe42692f0ece"; // this.props.router.params.tournamentId;
-        this.phaseId = "67156bd76f8bfe42692f0ecf"; // this.props.router.params.phase;
-        this.groupId = "67156bd76f8bfe42692f0ed0"; // this.props.router.params.group;
-        this.matchId = "67156bd76f8bfe42692f0ed2" ; // this.props.router.params.match;
+        this.tournamentId = undefined;
+        this.phaseId = undefined;
+        this.groupId = undefined;
+        this.matchId = this.props.router.params.matchId;
 
         this.state = {
             // page controls
@@ -29,15 +29,15 @@ class EditMatch extends Component {
     }
 
     retrieveMatch() {
+        console.log("matchId: ", this.matchId)
         TournamentDataService
-            .getMatch({
-                tournamentId: this.tournamentId,
-                phaseId: this.phaseId,
-                groupId: this.groupId,
-                matchId: this.matchId
-            })
+            .getMatch(this.matchId)
             .then(response => {
+                console.log("response: ", response);
                 const match = response.data.match;
+                this.tournamentId = response.data._id;
+                this.phaseId = response.data.phaseId;
+                this.groupId = response.data.groupId;
                 this.setState({
                     homeTeamId: match.homeTeam._id,
                     guestTeamId: match.guestTeam._id,
