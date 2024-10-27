@@ -1,5 +1,6 @@
 const db = require("../models");
 const Tournament = db.tournaments;
+const mongoose = require("mongoose");
 
 // Create and Save a new Tournament
 exports.create = (req, res) => {
@@ -142,26 +143,40 @@ exports.deleteAll = (req, res) => {
 };
 
 // Matches
-// Find a single Match
+// Find a single Match by matchId only
 exports.findMatch = (req, res) => {
-    const tournamentId = req.params.tournamentId;
-    const phaseId = req.params.phaseId;
-    const groupId = req.params.groupId;
+    console.log("req.params", req.params);
     const matchId = req.params.matchId;
 
     Tournament
-        .findById(tournamentId)
-        .populate("phases.groups.matchs.homeTeam")
-        .populate("phases.groups.matchs.guestTeam")
+        .aggregate()
+        .match({ "phases.groups.matchs._id": mongoose.Types.ObjectId.createFromHexString(matchId) })
+        .unwind( "$phases" )
+        .unwind( "$phases.groups" )
+        .unwind( "$phases.groups.matchs" )
+        .lookup({ "from": "teams", "localField": "phases.groups.matchs.homeTeam", "foreignField": "_id", "as": "homeTeamData" })
+        .lookup({ "from": "teams", "localField": "phases.groups.matchs.guestTeam", "foreignField": "_id", "as": "guestTeamData" })
+        .match({ "phases.groups.matchs._id": mongoose.Types.ObjectId.createFromHexString(matchId) })
+        .project({ 
+            phaseId: "$phases._id", 
+            groupId: "$phases.groups._id",
+            match: {
+                _id: "$phases.groups.matchs._id",
+                order: "$phases.groups.matchs.order",
+                sets: "$phases.groups.matchs.sets",
+                concluded: "$phases.groups.matchs.concluded",
+                homeTeam: { $arrayElemAt: ["$homeTeamData", 0] },
+                guestTeam: { $arrayElemAt: ["$guestTeamData", 0] }
+            }})
         .then(data => {
-            res.send({ match: data.phases.id(phaseId).groups.id(groupId).matchs.id(matchId) });
+            res.send(data[0]);
         })
         .catch(err => {
             console.log(err);
             res
                 .status(500)
-                .send({ message: "Error retrieving Tournament with id=" + tournamentId });
-        });
+                .set({ message: "Error retrieving Tournament by Match with id=" + matchId });
+        })
 };
 
 // Conclude match
