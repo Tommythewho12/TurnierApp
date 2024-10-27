@@ -24,10 +24,10 @@ exports.create = (req, res) => {
             res.send(data);
         })
         .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the Tournament."
-            });
+            console.log(err);
+            res
+                .status(500)
+                .send({ message: "Some error occurred while creating the Tournament." });
         });
 };
 
@@ -40,10 +40,10 @@ exports.findAll = (req, res) => {
             res.send(data);
         })
         .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving tournaments."
-            });
+            console.log(err);
+            res
+                .status(500)
+                .send({ message: "Some error occurred while retrieving tournaments." });
         });
 };
 
@@ -65,6 +65,7 @@ exports.findOne = (req, res) => {
             else res.send(data);
         })
         .catch(err => {
+            console.log(err);
             res
                 .status(500)
                 .send({ message: "Error retrieving Tournament with id=" + id });
@@ -91,6 +92,7 @@ exports.update = (req, res) => {
             } else res.send({ message: "Tournament was updated successfully." });
         })
         .catch(err => {
+            console.log(err);
             res.status(500).send({
                 message: "Error updating Tournament with id=" + id
             });
@@ -115,6 +117,7 @@ exports.delete = (req, res) => {
             }
         })
         .catch(err => {
+            console.log(err);
             res.status(500).send({
                 message: "Could not delete Tournament with id=" + id
             });
@@ -131,15 +134,15 @@ exports.deleteAll = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while removing all tournaments."
-            });
+            console.log(err);
+            res
+                .status(500)
+                .send({ message: "Some error occurred while removing all tournaments." });
         });
 };
 
 // Matches
-// Find a single Match2
+// Find a single Match
 exports.findMatch = (req, res) => {
     const tournamentId = req.params.tournamentId;
     const phaseId = req.params.phaseId;
@@ -154,9 +157,96 @@ exports.findMatch = (req, res) => {
             res.send({ match: data.phases.id(phaseId).groups.id(groupId).matchs.id(matchId) });
         })
         .catch(err => {
+            console.log(err);
             res
                 .status(500)
                 .send({ message: "Error retrieving Tournament with id=" + tournamentId });
+        });
+};
+
+// Conclude match
+exports.concludeMatch = (req, res) => {
+    const tournamentId = req.params.tournamentId;
+    const phaseId = req.params.phaseId;
+    const groupId = req.params.groupId;
+    const matchId = req.params.matchId;
+
+    Tournament
+        .updateOne(
+            {
+                "_id": tournamentId,
+                "phases._id": phaseId,
+                "phases.groups._id": groupId,
+                "phases.groups.matchs._id": matchId
+            },
+            {
+                $set: {
+                    [`phases.$[p].groups.$[g].matchs.$[m].concluded`]: true
+                }
+            },
+            {
+                arrayFilters: [
+                    { "p._id": phaseId },
+                    { "g._id": groupId },
+                    { "m._id": matchId }
+                ]
+            }
+        )
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            console.log(err);
+            res
+                .status(500)
+                .send({ message: "Error updating Set id=" + setId });
+        });
+};
+
+
+// Create new Set
+exports.createSet = (req, res) => {
+    const tournamentId = req.params.tournamentId;
+    const phaseId = req.params.phaseId;
+    const groupId = req.params.groupId;
+    const matchId = req.params.matchId;
+    const setOrder = req.body.setOrder;
+
+    Tournament
+        .findOneAndUpdate(
+            {
+                "_id": tournamentId,
+                "phases._id": phaseId,
+                "phases.groups._id": groupId,
+                "phases.groups.matchs._id": matchId
+            },
+            {
+                $push: {
+                    [`phases.$[p].groups.$[g].matchs.$[m].sets`]: {
+                        "order": setOrder,
+                        "scoreHome": 0,
+                        "scoreGuest": 0,
+                        "concluded": false
+                    },
+                }
+            },
+            {
+                arrayFilters: [
+                    { "p._id": phaseId },
+                    { "g._id": groupId },
+                    { "m._id": matchId }
+                ],
+                new: true
+            }
+        )
+        .then(data => {
+            res.send( data.phases.id(phaseId).groups.id(groupId).matchs.id(matchId).sets[setOrder] );
+        })
+        .catch(err => {
+            console.log(err);
+            res
+                .status(500)
+                .send({ message: "Error creating set in Tournament with id=" + tournamentId });
         });
 };
 
@@ -198,6 +288,7 @@ exports.updateSet = (req, res) => {
             res.send(data);
         })
         .catch(err => {
+            console.log(err);
             res
                 .status(500)
                 .send({ message: "Error updating Set id=" + setId });

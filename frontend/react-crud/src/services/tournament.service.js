@@ -32,6 +32,16 @@ class TournamentDataService {
     }
 
     // TODO use different variable name than 'data'
+    concludeMatch(data) {
+        return http.patch(`/tournaments/${data.tournamentId}/phases/${data.phaseId}/groups/${data.groupId}/matchs/${data.matchId}/concluded`);
+    }
+
+    // TODO use different variable name than 'data'
+    createSet(data) {
+        return http.post(`/tournaments/${data.tournamentId}/phases/${data.phaseId}/groups/${data.groupId}/matchs/${data.matchId}/sets`, {setOrder: data.setOrder});
+    }
+
+    // TODO use different variable name than 'data'
     updateSet(data) {
         return http.patch(`/tournaments/${data.tournamentId}/phases/${data.phaseId}/groups/${data.groupId}/matchs/${data.matchId}/sets/${data.set._id}`, data.set);
     }

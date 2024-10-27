@@ -25,6 +25,12 @@ module.exports = app => {
   // Retrieve a single Match
   router.get("/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId", tournaments.findMatch);
 
+  // Update Match
+  router.patch("/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId/concluded", tournaments.concludeMatch);
+
+  // Create set
+  router.post("/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId/sets", tournaments.createSet);
+
   router.patch("/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId/sets/:setId", tournaments.updateSet);
 
   app.use('/api/tournaments', router);
