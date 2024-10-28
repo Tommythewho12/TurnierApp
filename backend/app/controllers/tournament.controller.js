@@ -1,6 +1,5 @@
 const db = require("../models");
 const Tournament = db.tournaments;
-const mongoose = require("mongoose");
 
 // Create and Save a new Tournament
 exports.create = (req, res) => {
@@ -145,18 +144,17 @@ exports.deleteAll = (req, res) => {
 // Matches
 // Find a single Match by matchId only
 exports.findMatch = (req, res) => {
-    console.log("req.params", req.params);
     const matchId = req.params.matchId;
 
     Tournament
         .aggregate()
-        .match({ "phases.groups.matchs._id": mongoose.Types.ObjectId.createFromHexString(matchId) })
+        .match({ "phases.groups.matchs._id": db.mongoose.Types.ObjectId.createFromHexString(matchId) })
         .unwind( "$phases" )
         .unwind( "$phases.groups" )
         .unwind( "$phases.groups.matchs" )
         .lookup({ "from": "teams", "localField": "phases.groups.matchs.homeTeam", "foreignField": "_id", "as": "homeTeamData" })
         .lookup({ "from": "teams", "localField": "phases.groups.matchs.guestTeam", "foreignField": "_id", "as": "guestTeamData" })
-        .match({ "phases.groups.matchs._id": mongoose.Types.ObjectId.createFromHexString(matchId) })
+        .match({ "phases.groups.matchs._id": db.mongoose.Types.ObjectId.createFromHexString(matchId) })
         .project({ 
             phaseId: "$phases._id", 
             groupId: "$phases.groups._id",
