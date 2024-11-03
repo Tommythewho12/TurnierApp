@@ -33,7 +33,6 @@ exports.create = (req, res) => {
 
 // Retrieve all Tournaments from the database.
 exports.findAll = (req, res) => {
-
     Tournament
         .find()
         .then(data => {
@@ -192,13 +191,10 @@ exports.concludeMatch = async (req, res) => {
         if (tournamentDoc.phases.id(phaseId).groups.id(groupId).matchs.every(match => match.concluded === true)) {
             tournamentDoc.phases.id(phaseId).groups.id(groupId).concluded = true;
 
-            const rankedTeams = tournamentDoc.phases.id(phaseId).groups.id(groupId).teams
-                .sort((a,b) => (b.pointsScored - b.pointsSuffered) - (a.pointsScored - a.pointsSuffered))
-                .sort((a,b) => b.score - a.score);
-                // TODO Ranking wrong. Here?
-
             const currentPhaseOrder = tournamentDoc.phases.id(phaseId).order;
             const currentGroupOrder = tournamentDoc.phases.id(phaseId).groups.id(groupId).order;
+
+            const rankedTeams = getTeamsRanked(tournamentDoc, currentPhaseOrder, currentGroupOrder);
 
             // update all group.teams that reference this group
             tournamentDoc.phases.forEach((phase, phaseIndex) => {
@@ -207,12 +203,11 @@ exports.concludeMatch = async (req, res) => {
                         group.teamReferences.forEach((teamRef, teamRefIndex) => {
                             if (teamRef.phase === currentPhaseOrder && teamRef.group === currentGroupOrder) {
                                 group.teams[teamRefIndex] = rankedTeams[teamRef.rank];
-                                if (group.teams.length === group.teamReferences.length && group.teams.every(team => team != undefined)) {
+                                if (group.teams.every(team => team != undefined)) {
                                     group.matchs = group.matchs.map((match, i) => ({
                                         ...match, 
                                         homeTeam: group.teams[i % group.teams.length],
                                         guestTeam: group.teams[(i + Math.floor(i / group.teams.length) + 1) % group.teams.length]}));
-                                    // TEST THIS !!
                                 }
                             }
                         })
@@ -235,6 +230,46 @@ exports.concludeMatch = async (req, res) => {
             .send({message: "An internal server error has occured."});
     }
 };
+
+function getTeamsRanked(tournamentDoc, phaseOrder, groupOrder) {
+    const teams = [];
+    tournamentDoc.phases[phaseOrder].groups[groupOrder].teams.forEach(team => {
+        teams.push({_id: team._id, score: 0, pointsScored: 0, pointsSuffered: 0});
+    });
+
+    tournamentDoc.phases[phaseOrder].groups[groupOrder].matchs.forEach(match => {
+        const homeTeam = teams.find(t => t._id.toString() === match.homeTeam.toString());
+        const guestTeam = teams.find(t => t._id.toString() === match.guestTeam.toString());
+
+        let setsHome = 0;
+        let setsGuest = 0;
+        match.sets.forEach(set => {
+            const scoreHome = Number(set.scoreHome);
+            const scoreGuest = Number(set.scoreGuest);
+            if (scoreHome > scoreGuest) setsHome++;
+            else if (scoreHome < scoreGuest) setsGuest++;
+
+            homeTeam.pointsScored += scoreHome;
+            guestTeam.pointsScored += scoreGuest;
+            homeTeam.pointsSuffered += scoreGuest;
+            guestTeam.pointsSuffered += scoreHome;
+        });
+
+        // TODO fetch points from tournament settings
+        if (setsHome > setsGuest) {
+            homeTeam.score += 2;
+        } else if (setsHome < setsGuest) {
+            guestTeam.score += 2;
+        } else {
+            homeTeam.score += 1;
+            homeGuest.score += 1;
+        }
+    });
+
+    return teams
+            .sort((a,b) => (b.pointsScored - b.pointsSuffered) - (a.pointsScored - a.pointsSuffered))
+            .sort((a,b) => b.score - a.score);
+}
 
 // Create new Set
 exports.createSet = (req, res) => {
