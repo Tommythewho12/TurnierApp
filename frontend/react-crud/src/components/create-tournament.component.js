@@ -79,7 +79,7 @@ export default class CreateTournaments extends Component {
                     order: this.state.tournament.phases.length,
                     groups: this.state.tournament.phases.length === 0
                         ? [{ order: 0, teams: [undefined, undefined], teamReferences: undefined, matchs: [] }]
-                        : [{ order: 0, teams: undefined, teamReferences: [undefined, undefined], matchs: [] }]
+                        : [{ order: 0, teams: [undefined, undefined], teamReferences: [undefined, undefined], matchs: [] }]
                 }]
             }
         });
@@ -95,7 +95,7 @@ export default class CreateTournaments extends Component {
         const newPhases = this.state.tournament.phases;
         newPhases[phaseIndex].groups = [...newPhases[phaseIndex].groups, {
             order: newPhases[phaseIndex].groups.length,
-            teams: phaseIndex === 0 ? [undefined, undefined] : undefined,
+            teams: [undefined, undefined],
             teamReferences: phaseIndex === 0 ? undefined : [undefined, undefined],
             matchs: []
         }];
@@ -111,16 +111,14 @@ export default class CreateTournaments extends Component {
     updateGroupSize(value, phaseIndex, groupIndex) {
         const newPhases = this.state.tournament.phases;
 
-        if (phaseIndex === 0) {
-            newPhases[phaseIndex].groups[groupIndex].teams = [];
-        } else {
+        newPhases[phaseIndex].groups[groupIndex].teams = [];
+        if (phaseIndex !== 0) {
             newPhases[phaseIndex].groups[groupIndex].teamReferences = [];
         }
 
         for (let i = 0; i < Number(value); i++) {
-            if (phaseIndex === 0) {
-                newPhases[phaseIndex].groups[groupIndex].teams.push(undefined);
-            } else {
+            newPhases[phaseIndex].groups[groupIndex].teams.push(undefined);
+            if (phaseIndex !== 0) {
                 newPhases[phaseIndex].groups[groupIndex].teamReferences.push(undefined);
             }
         }
@@ -170,26 +168,14 @@ export default class CreateTournaments extends Component {
         let phaseIndex = 0;
         for (let phase of updatedTournament.phases) {
             for (let group of phase.groups) {
-                if (phaseIndex === 0) {
-                    const noOfTeams = Number(group.teams.length);
-                    // create matches for every team to play vs each other once
-                    for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
-                        group.matchs.push({
-                            order: i,
-                            homeTeam: group.teams[i % noOfTeams],
-                            guestTeam: group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams]
-                        });
-                    }
-                } else {
-                    const noOfTeams = Number(group.teamReferences.length);
-                    // create matches for every team to play vs each other once
-                    for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
-                        group.matchs.push({
-                            order: i,
-                            homeTeam: null,
-                            guestTeam: null
-                        });
-                    }
+                const noOfTeams = Number(group.teams.length);
+                // create matches for every team to play vs each other once
+                for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
+                    group.matchs.push({
+                        order: i,
+                        homeTeam: phaseIndex === 0 ? group.teams[i % noOfTeams] : null,
+                        guestTeam: phaseIndex === 0 ? group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams] : null
+                    });
                 }
             }
             phaseIndex++;

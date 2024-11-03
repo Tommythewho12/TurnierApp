@@ -130,6 +130,11 @@ class EditMatch extends Component {
             });
     }
 
+    debug() {
+        console.log(this.state);
+        this.setState({concluded: false});
+    }
+
     render() {
         const { homeTeamName, guestTeamName, sets, concluded } = this.state;
 
