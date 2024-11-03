@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import TeamDataService from "../services/team.service.js";
 import TournamentDataService from "../services/tournament.service.js";
 
-const delay = ms => new Promise(res => setTimeout(res, ms));
-
 export default class CreateTournaments extends Component {
     constructor(props) {
         super(props);
@@ -330,8 +328,8 @@ export default class CreateTournaments extends Component {
                                                                 {phaseIndex === 0 && group.teams && group.teams.map((team, teamIndex) => (
                                                                     <div>
                                                                         <label htmlFor={phaseIndex + "-" + groupIndex + "-" + teamIndex}>Team {teamIndex + 1}</label>
-                                                                        <select id={phaseIndex + "-" + groupIndex + "-" + teamIndex} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamIndex)}>
-                                                                            <option hidden disabled selected={team === undefined}>-- select team --</option>
+                                                                        <select id={phaseIndex + "-" + groupIndex + "-" + teamIndex} value={undefined} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamIndex)}>
+                                                                            <option value={undefined} hidden>-- select team --</option>
                                                                             {tournamentTeams.length > 0 && tournamentTeams.map((tournamentTeam) => (
                                                                                 <option value={tournamentTeam} selected={team === tournamentTeam}>
                                                                                     {allTeams.filter(t => t._id === tournamentTeam).map(q => (<>{q.name}</>))}
@@ -343,8 +341,8 @@ export default class CreateTournaments extends Component {
                                                                 {phaseIndex !== 0 && group.teamReferences && group.teamReferences.map((teamRef, teamRefIndex) => (
                                                                     <div>
                                                                         <label htmlFor={phaseIndex + "-" + groupIndex + "-" + teamRefIndex}>Team {teamRefIndex + 1}</label>
-                                                                        <select id={phaseIndex + "-" + groupIndex + "-" + teamRefIndex} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamRefIndex)}>
-                                                                            <option hidden disabled selected={teamRef === undefined}>-- select team --</option>
+                                                                        <select id={phaseIndex + "-" + groupIndex + "-" + teamRefIndex} value={undefined} onChange={v => this.updateTeam(v.target.value, phaseIndex, groupIndex, teamRefIndex)}>
+                                                                            <option value={undefined} hidden>-- select team --</option>
                                                                             {phases[phaseIndex - 1].groups.map((groupReference, groupReferenceIndex) => (
                                                                                 <>
                                                                                     {groupReference.teams != null && groupReference.teams.map((_, rank) => (
