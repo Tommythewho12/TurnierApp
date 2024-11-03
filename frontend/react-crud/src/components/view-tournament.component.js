@@ -38,7 +38,6 @@ class ViewTournament extends Component {
     enrichTeamStats(tournament) {
         tournament.phases.forEach((phase, phaseIndex, phases) => {
             phase.groups.forEach((group, groupIndex, groups) => {
-                console.log("###" , group);
                 if (group.teams != undefined && group.teams.length > 0) {
                     group.teams = group.teams.map((team, teamIndex) => (
                         {
@@ -73,6 +72,8 @@ class ViewTournament extends Component {
                             guestTeam.pointsScored += scoreGuest;
                             guestTeam.pointsSuffered += scoreHome;
                         });
+                        
+                        // TODO fetch points from tournament settings
                         if (setsHome > setsGuest) {
                             homeTeam.score += 2;
                             homeTeam.wins++;
@@ -91,8 +92,7 @@ class ViewTournament extends Component {
                 });
             });
         });
-        
-        console.log("tournament: ", tournament);
+
         this.setState({tournament: tournament});
     }
 
