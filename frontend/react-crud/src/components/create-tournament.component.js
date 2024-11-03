@@ -86,7 +86,7 @@ export default class CreateTournaments extends Component {
     }
 
     popPhase() {
-        const newPhases = this.state.phases;
+        const newPhases = this.state.tournament.phases;
         newPhases.pop();
         this.setState({ tournament: { ...this.state.tournament, phases: newPhases } });
     }
@@ -349,14 +349,6 @@ export default class CreateTournaments extends Component {
                                                                                 <>
                                                                                     {groupReference.teams != null && groupReference.teams.map((_, rank) => (
                                                                                         <option 
-                                                                                            value={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank} 
-                                                                                            selected={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank === 
-                                                                                                (teamRef===undefined ? undefined : teamRef.phase + "-" + teamRef.group + "-" + teamRef.rank)}>
-                                                                                                Phase {phaseIndex - 1} - Group {groupReferenceIndex} - Rank{rank + 1}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                    {groupReference.teamReferences != null && groupReference.teamReferences.map((_, rank) => (
-                                                                                            <option
                                                                                             value={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank} 
                                                                                             selected={phaseIndex - 1 + "-" + groupReferenceIndex + "-" + rank === 
                                                                                                 (teamRef===undefined ? undefined : teamRef.phase + "-" + teamRef.group + "-" + teamRef.rank)}>
