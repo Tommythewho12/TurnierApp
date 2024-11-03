@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import TournamentDataService from "../services/tournament.service.js";
+import { Link } from "react-router-dom";
 import { withRouter } from '../common/with-router';
+
+import TournamentDataService from "../services/tournament.service.js";
 
 class ViewTournament extends Component {
     constructor(props) {
@@ -36,11 +38,12 @@ class ViewTournament extends Component {
     enrichTeamStats(tournament) {
         tournament.phases.forEach((phase, phaseIndex, phases) => {
             phase.groups.forEach((group, groupIndex, groups) => {
+                console.log("###" , group);
                 if (group.teams != undefined && group.teams.length > 0) {
-                    group.teams = group.teams.map(team => (
+                    group.teams = group.teams.map((team, teamIndex) => (
                         {
                             _id: team,
-                            name: tournament.teams.find(t => t._id === team).name,
+                            name: team != null ? tournament.teams.find(t => t._id === team).name : this.getDescriptionFromTeamReference(group.teamReferences[teamIndex]),
                             score: 0,
                             matchs: 0,
                             wins: 0,
@@ -73,11 +76,11 @@ class ViewTournament extends Component {
                         if (setsHome > setsGuest) {
                             homeTeam.score += 2;
                             homeTeam.wins++;
-                            guestTeam.losses++;
+                            guestTeam.losss++;
                         } else if (setsHome < setsGuest) {
                             guestTeam.score += 2;
                             guestTeam.wins++;
-                            homeTeam.losses++;
+                            homeTeam.losss++;
                         } else {
                             homeTeam.score += 1;
                             guestTeam.score += 1;
@@ -94,12 +97,7 @@ class ViewTournament extends Component {
     }
 
     getTeamName(teamId) {
-        for (let team of this.state.tournament.teams) {
-            if (team._id === teamId) {
-                return team.name;
-            }
-        }
-        return "n/a";
+        return teamId != undefined ? this.state.tournament.teams.find(t => t._id === teamId).name : "n/a";
     }
 
     getDescriptionFromTeamReference(teamRef) {
@@ -156,16 +154,6 @@ class ViewTournament extends Component {
                                             <td>{team.pointsScored} : {team.pointsSuffered}</td>
                                         </tr>
                                     ))}
-                                    {group.teamReferences != null && group.teamReferences.map(teamRef => (
-                                        <tr>
-                                            <td>{this.getDescriptionFromTeamReference(teamRef)}</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0 : 0</td>
-                                        </tr>
-                                    ))}
                                 </tbody>
                             </table>
                             <div className="matches">
@@ -173,7 +161,9 @@ class ViewTournament extends Component {
                                     <div className="container match-container">
                                         <div className={"row home-row " + (match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) > 0 && "winner")}>
                                             <div className="col team-name-col">
-                                                {this.getTeamName(match.homeTeam)}
+                                                <Link to={"/matchs/" + match._id}>
+                                                    {this.getTeamName(match.homeTeam)}
+                                                </Link>
                                             </div>
                                             <div className="col score-col winner-column">
                                             </div>
@@ -183,7 +173,7 @@ class ViewTournament extends Component {
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className={"row guest-row " + (match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) < 0 && "winner")}>
+                                        <div className={"row guest-row " + (match.sets.reduce((c, v) => (v.scoreHome < v.scoreGuest ? ++c : --c), 0) > 0 && "winner")}>
                                             <div className="col team-name-col">
                                             {this.getTeamName(match.guestTeam)}
                                             </div>
@@ -202,14 +192,14 @@ class ViewTournament extends Component {
                                 {group.matchs && group.matchs.map(match => (
                                     <div className="container match-container">
                                         <table className="table home-row">
-                                        <tr className={(match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) > 0 && "winner")}>
+                                        <tr className={((match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) > 0) ? "winner" : undefined)}>
                                                 <td>{this.getTeamName(match.homeTeam)}</td>
                                                 <td className="winner-column"></td>
                                                 {match.sets && match.sets.map(set => (
                                                     <td>{set.scoreHome}</td>
                                                 ))}
                                             </tr>
-                                            <tr className={(match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) < 0 && "winner")}>
+                                            <tr className={((match.sets.reduce((c, v) => (v.scoreHome < v.scoreGuest ? ++c : --c), 0) > 0) ? "winner" : undefined)}>
                                                 <td>{this.getTeamName(match.guestTeam)}</td>
                                                 <td className="winner-column"></td>
                                                 {match.sets && match.sets.map(set => (

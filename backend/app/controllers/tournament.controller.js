@@ -149,14 +149,14 @@ exports.findMatch = (req, res) => {
     Tournament
         .aggregate()
         .match({ "phases.groups.matchs._id": db.mongoose.Types.ObjectId.createFromHexString(matchId) })
-        .unwind( "$phases" )
-        .unwind( "$phases.groups" )
-        .unwind( "$phases.groups.matchs" )
+        .unwind("$phases")
+        .unwind("$phases.groups")
+        .unwind("$phases.groups.matchs")
         .lookup({ "from": "teams", "localField": "phases.groups.matchs.homeTeam", "foreignField": "_id", "as": "homeTeamData" })
         .lookup({ "from": "teams", "localField": "phases.groups.matchs.guestTeam", "foreignField": "_id", "as": "guestTeamData" })
         .match({ "phases.groups.matchs._id": db.mongoose.Types.ObjectId.createFromHexString(matchId) })
-        .project({ 
-            phaseId: "$phases._id", 
+        .project({
+            phaseId: "$phases._id",
             groupId: "$phases.groups._id",
             match: {
                 _id: "$phases.groups.matchs._id",
@@ -165,7 +165,8 @@ exports.findMatch = (req, res) => {
                 concluded: "$phases.groups.matchs.concluded",
                 homeTeam: { $arrayElemAt: ["$homeTeamData", 0] },
                 guestTeam: { $arrayElemAt: ["$guestTeamData", 0] }
-            }})
+            }
+        })
         .then(data => {
             res.send(data[0]);
         })
@@ -178,44 +179,62 @@ exports.findMatch = (req, res) => {
 };
 
 // Conclude match
-exports.concludeMatch = (req, res) => {
+exports.concludeMatch = async (req, res) => {
     const tournamentId = req.params.tournamentId;
     const phaseId = req.params.phaseId;
     const groupId = req.params.groupId;
     const matchId = req.params.matchId;
 
-    Tournament
-        .updateOne(
-            {
-                "_id": tournamentId,
-                "phases._id": phaseId,
-                "phases.groups._id": groupId,
-                "phases.groups.matchs._id": matchId
-            },
-            {
-                $set: {
-                    [`phases.$[p].groups.$[g].matchs.$[m].concluded`]: true
-                }
-            },
-            {
-                arrayFilters: [
-                    { "p._id": phaseId },
-                    { "g._id": groupId },
-                    { "m._id": matchId }
-                ]
-            }
-        )
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            console.log(err);
-            res
-                .status(500)
-                .send({ message: "Error updating Set id=" + setId });
-        });
-};
+    try {
+        let tournamentDoc = await Tournament.findById(tournamentId);
+        tournamentDoc.phases.id(phaseId).groups.id(groupId).matchs.id(matchId).concluded = true;
 
+        if (tournamentDoc.phases.id(phaseId).groups.id(groupId).matchs.every(match => match.concluded === true)) {
+            tournamentDoc.phases.id(phaseId).groups.id(groupId).concluded = true;
+
+            const rankedTeams = tournamentDoc.phases.id(phaseId).groups.id(groupId).teams
+                .sort((a,b) => (b.pointsScored - b.pointsSuffered) - (a.pointsScored - a.pointsSuffered))
+                .sort((a,b) => b.score - a.score);
+                // TODO Ranking wrong. Here?
+
+            const currentPhaseOrder = tournamentDoc.phases.id(phaseId).order;
+            const currentGroupOrder = tournamentDoc.phases.id(phaseId).groups.id(groupId).order;
+
+            // update all group.teams that reference this group
+            tournamentDoc.phases.forEach((phase, phaseIndex) => {
+                if (phase.order > tournamentDoc.phases.id(phaseId).order) {
+                    phase.groups.forEach((group, groupIndex) => {
+                        group.teamReferences.forEach((teamRef, teamRefIndex) => {
+                            if (teamRef.phase === currentPhaseOrder && teamRef.group === currentGroupOrder) {
+                                group.teams[teamRefIndex] = rankedTeams[teamRef.rank];
+                                if (group.teams.length === group.teamReferences.length && group.teams.every(team => team != undefined)) {
+                                    group.matchs = group.matchs.map((match, i) => ({
+                                        ...match, 
+                                        homeTeam: group.teams[i % group.teams.length],
+                                        guestTeam: group.teams[(i + Math.floor(i / group.teams.length) + 1) % group.teams.length]}));
+                                    // TEST THIS !!
+                                }
+                            }
+                        })
+                    })
+                }
+            });
+
+            if (tournamentDoc.phases.id(phaseId).groups.every(group => group.concluded === true)) {
+                tournamentDoc.phases.id(phaseId).concluded = true;
+            }
+        }
+
+        tournamentDoc.save().then(data => {
+            res.send(data);
+        });
+    } catch (err) {
+        console.error("error while concluding match with id: " + matchId, err);
+        res
+            .status(500)
+            .send({message: "An internal server error has occured."});
+    }
+};
 
 // Create new Set
 exports.createSet = (req, res) => {
@@ -253,7 +272,7 @@ exports.createSet = (req, res) => {
             }
         )
         .then(data => {
-            res.send( data.phases.id(phaseId).groups.id(groupId).matchs.id(matchId).sets[setOrder] );
+            res.send(data.phases.id(phaseId).groups.id(groupId).matchs.id(matchId).sets[setOrder]);
         })
         .catch(err => {
             console.log(err);
