@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { withRouter } from '../common/with-router';
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 
 import TournamentDataService from "../services/tournament.service.js";
+import MyDocument from "../PDF.js";
 
 class ViewTournament extends Component {
     constructor(props) {
@@ -127,6 +129,15 @@ class ViewTournament extends Component {
                 </div>
                 <div className="col-9">
                     <h4>Tournaments</h4>
+                    {activePhase === -1 && (
+                        <div>
+                            <PDFDownloadLink document={<MyDocument />} fileName="myPDF.pdf">
+                                {({ blob, url, loading, error }) => 
+                                    loading ? 'Loading document...' : 'Download now!'
+                                }
+                            </PDFDownloadLink>
+                        </div>
+                    )}
                     {tournament && tournament.phases && activePhase >= 0 && tournament.phases[activePhase].groups.map((group, groupIndex) => (
                         <div className="group-container">
                         <div className="group-header">
