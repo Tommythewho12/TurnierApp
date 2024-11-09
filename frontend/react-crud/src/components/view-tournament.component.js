@@ -4,7 +4,7 @@ import { withRouter } from '../common/with-router';
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 
 import TournamentDataService from "../services/tournament.service.js";
-import MyDocument from "../PDF.js";
+import MyDocument from "../resources/PDF.js";
 
 class ViewTournament extends Component {
     constructor(props) {

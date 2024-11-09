@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { withRouter } from '../common/with-router.js';
-import leon from '../images/Leon.jpg'
+import { PDFViewer } from "@react-pdf/renderer";
+import MyDocument from "../resources/PDF.js";
 
 class Leonschwonz extends Component {
     constructor(props) {
@@ -11,9 +12,9 @@ class Leonschwonz extends Component {
 
         return (
             <div className="mx-auto p-2 container">
-                <row><img src={leon} /></row>
-                <row><p>Man sagt: "du bist was du isst."</p></row>
-                <row><h1>Hallo, mein Name ist Leon und ich bin ein Arsch ;)</h1></row>
+                <PDFViewer width={"100%"} height={"800px"}>
+                    <MyDocument />
+                </PDFViewer>
             </div>
         );
     }
