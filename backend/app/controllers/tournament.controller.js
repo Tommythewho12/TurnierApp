@@ -396,45 +396,162 @@ exports.fetchPDF = (req, res) => {
         });
 };
 
+const cm = 595.28 / 21;
+
 const styles = {
     pageWidth: 595.28,
-    pagePadding: 72,
-    margin: 5,
-    qrCodeWidth: 80
+    pagePadding: 40,
+    margin: 8,
+    defaultFontSize: 15,
+    qrCodeWidth: 100,
+    placeHolderBg: "#DCDCDC",
+    scorePlaceHolder: {
+        width: 3 * cm,
+        height: 1 * cm
+    },
+    teamPlaceHolder: {
+        width: 1 * cm,
+        height: 0.8 * cm
+    },
+
 };
 
 function writePdf(doc, data, res) {
-    doc.addPage();
-    doc.fontSize(24);
+    doc.addPage({margin: styles.pagePadding});
+    doc.fontSize(30);
     doc.text(`Turnierspielbogen`, {
+        width: styles.pageWidth - 2 * styles.pagePadding - styles.qrCodeWidth,
         align: "center"
     });
     const matchInfoBoxY = doc.currentLineHeight() + 16;
 
-    doc.fontSize(10);
+    doc.fontSize(styles.defaultFontSize);
     const matchInfoColumn0Width = doc.widthOfString("Schiedsgericht");
     const matchInfoColumn2Width = doc.widthOfString("Feld");
     const matchInfoColumn3Width = doc.widthOfString("00");
 
-    doc.text("Team A", styles.pagePadding, styles.pagePadding + matchInfoBoxY);
-    doc.moveDown(0.3);
-    doc.text("Team B");
-    doc.moveDown(0.3);
-    doc.text("Schiedsgericht");
+    let x = styles.pagePadding;
+    let y = styles.pagePadding + matchInfoBoxY;
+    let y1 = y + doc.currentLineHeight() + styles.margin;
+    let y2 = y1 + doc.currentLineHeight() + styles.margin;
+    doc.text("Team A", x, y);
+    doc.text("Team B", x, y1);
+    doc.text("Schiedsgericht", x, y2);
 
-    doc.text("Platzhalter", styles.pagePadding + matchInfoColumn0Width + styles.margin, styles.pagePadding + matchInfoBoxY);
-    doc.moveDown(0.3);
-    doc.text("Platzhalter");
-    doc.moveDown(0.3);
-    doc.text("Platzhalter");
+    x = styles.pagePadding + matchInfoColumn0Width + styles.margin;
+    doc.text("Platzhalter", x, y);
+    doc.text("Platzhalter", x, y1);
+    doc.text("Platzhalter", x, y2);
 
-    doc.text("Gr", styles.pageWidth - (styles.pagePadding + styles.qrCodeWidth + matchInfoColumn3Width + matchInfoColumn2Width + styles.margin * 2), styles.pagePadding + matchInfoBoxY);
-    doc.moveDown(0.3);
-    doc.text("Feld");
+    x = styles.pageWidth - (styles.pagePadding + styles.qrCodeWidth + matchInfoColumn3Width + matchInfoColumn2Width + styles.margin * 3);
+    doc.text("Gr", x, y);
+    doc.text("Feld", x, y1);
 
-    doc.text("1", styles.pageWidth - (styles.pagePadding + styles.qrCodeWidth + matchInfoColumn3Width + styles.margin), styles.pagePadding + matchInfoBoxY);
-    doc.moveDown(0.3);
-    doc.text("A");
+    x = styles.pageWidth - (styles.pagePadding + styles.qrCodeWidth + matchInfoColumn3Width + styles.margin * 2);
+    doc.text("1", x, y);
+    doc.text("A", x, y1);
+    doc.text("", x, y2);
+
+    doc.rect(styles.pageWidth - styles.pagePadding - styles.qrCodeWidth, styles.pagePadding, styles.qrCodeWidth, styles.qrCodeWidth).fill("black");
+
+    // TODO replace hardcoded noOfSets
+    const noOfSets = 3;
+    const scoreTableWidth = doc.widthOfString("Teams") + 4 * styles.margin + 2 * styles.teamPlaceHolder.width;
+    const xs = [];
+    for (let i = 0; i < noOfSets; i++) {
+        xs.push(styles.pagePadding + (i * scoreTableWidth) + (i + 1) * (((styles.pageWidth - 2 * styles.pagePadding) - (noOfSets * scoreTableWidth)) / (noOfSets + 1)));
+    }
+    
+    y = y2 + doc.currentLineHeight() + styles.margin;
+    y1 = y + styles.margin;
+    y2 = y1 + styles.margin + doc.currentLineHeight();
+    let y3 = y2 + doc.currentLineHeight() / 2 - styles.teamPlaceHolder.height / 2;
+    let y4 = Math.max(y2 + styles.margin + doc.currentLineHeight(), y3 + styles.teamPlaceHolder.height + styles.margin);
+    let y5 = y4 + doc.currentLineHeight() * 30 + styles.margin;
+    let y6 = y5 + doc.currentLineHeight() + styles.margin;
+    let y7 = y6 + styles.scorePlaceHolder.height + styles.margin
+    for (let i = 0; i < noOfSets; i++) {
+        doc.fillColor("black");
+        doc.fontSize(styles.defaultFontSize);
+        doc.rect(xs[i], y, scoreTableWidth, y7 - y).stroke();
+        doc.text("Satz " + (i+1), xs[i], y1, {
+            width: scoreTableWidth,
+            align: "center"
+        });
+        doc.text("Teams", xs[i], y2, {
+            width: scoreTableWidth,
+            align: "center"
+        });
+        
+        doc.rect(
+            xs[i] + styles.margin,
+            y3,
+            styles.teamPlaceHolder.width,
+            styles.teamPlaceHolder.height).fill(styles.placeHolderBg);
+        doc.rect(
+            xs[i] + scoreTableWidth - styles.margin - styles.teamPlaceHolder.width,
+            y3,
+            styles.teamPlaceHolder.width,
+            styles.teamPlaceHolder.height).fill();
+
+        // mark-off-scores
+        doc.fontSize(12);
+        doc.fillColor("black");
+        doc.text("", xs[i] + styles.margin, y4);
+        for (let i = 1; i <= 30; i++) {
+            doc.text(i, {
+                align: "center",
+                width: styles.teamPlaceHolder.width,
+            });
+        }
+        doc.text("", xs[i] + scoreTableWidth - styles.margin - styles.teamPlaceHolder.width, y4);
+        for (let i = 1; i <= 30; i++) {
+            doc.text(i, {
+                align: "center",
+                width: styles.teamPlaceHolder.width,
+            });
+        }
+
+        doc.fontSize(styles.defaultFontSize);
+        doc.text("Ergebnis", xs[i], y5, {
+            width: scoreTableWidth,
+            align: "center"
+        });
+
+        doc.rect(xs[i] + (scoreTableWidth - styles.scorePlaceHolder.width) / 2, y6, styles.scorePlaceHolder.width, styles.scorePlaceHolder.height).fill(styles.placeHolderBg);
+        doc.fillColor("black").text(":", xs[i], y6 + styles.scorePlaceHolder.height / 2, {
+            width: scoreTableWidth,
+            align: "center",
+            baseline: "middle"
+        });
+    }
+
+    let y8 = y7 + styles.margin;
+    let y9 = y8 + styles.scorePlaceHolder.height / 2;
+    x = styles.pagePadding;
+    const winnerTxt = "Gewinner", sets = "Sätze", points = "Punkte";
+    const x1 = x + doc.widthOfString(winnerTxt) + styles.margin;
+    const x5 = styles.pageWidth - styles.pagePadding - styles.scorePlaceHolder.width;
+    const x4 = x5 - styles.margin - doc.widthOfString(points);
+    const x3 = x4 - styles.margin - styles.scorePlaceHolder.width;
+    const x2 = x3 - styles.margin - doc.widthOfString(sets);
+    doc.rect(x1, y8, x2 - x1 - styles.margin, styles.scorePlaceHolder.height).fill(styles.placeHolderBg);
+    doc.rect(x3, y8, styles.scorePlaceHolder.width, styles.scorePlaceHolder.height).fill();
+    doc.rect(x5, y8, styles.scorePlaceHolder.width, styles.scorePlaceHolder.height).fill();
+
+    doc.fillColor("black").text(winnerTxt, x, y9, { baseline: "middle" });
+    doc.text(sets, x2, y9, { baseline: "middle" });
+    doc.text(points, x4, y9, { baseline: "middle" });
+    doc.text(":", x3, y9, {
+        width: styles.scorePlaceHolder.width,
+        align: "center",
+        baseline: "middle"
+    });
+    doc.text(":", x5, y9, {
+        width: styles.scorePlaceHolder.width,
+        align: "center",
+        baseline: "middle"
+    });
 
     // close document
     doc.pipe(res);
