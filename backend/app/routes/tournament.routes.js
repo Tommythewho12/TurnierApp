@@ -33,5 +33,8 @@ module.exports = app => {
 
   router.patch("/tournaments/:tournamentId/phases/:phaseId/groups/:groupId/matchs/:matchId/sets/:setId", tournaments.updateSet);
 
+  // Create and fetch PDF
+  router.get("/tournaments/:tournamentId/pdf/:fileName", tournaments.fetchPDF);
+
   app.use('/api', router);
 };

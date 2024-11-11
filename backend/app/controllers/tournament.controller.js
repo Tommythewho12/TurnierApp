@@ -1,4 +1,5 @@
 const db = require("../models");
+const PDFDocument = require("pdfkit");
 const Tournament = db.tournaments;
 
 // Create and Save a new Tournament
@@ -17,6 +18,8 @@ exports.create = (req, res) => {
         phases: req.body.phases
     });
 
+    // const pdf = createPdf(req.body);
+
     // Save Tournament in the database
     tournament
         .save(tournament)
@@ -33,6 +36,7 @@ exports.create = (req, res) => {
 
 // Retrieve all Tournaments from the database.
 exports.findAll = (req, res) => {
+    // TODO improve result. Only return tournament names
     Tournament
         .find()
         .then(data => {
@@ -360,4 +364,79 @@ exports.updateSet = (req, res) => {
                 .status(500)
                 .send({ message: "Error updating Set id=" + setId });
         });
+}
+
+// create and fetch PDF document of tournament
+exports.fetchPDF = (req, res) => {
+    const id = req.params.tournamentId;
+    const pdf = new PDFDocument({
+        size:"A4",
+        autoFirstPage: false,
+        Author:"TournamentApp made by Tommythewho12",
+    });
+
+    Tournament
+        .findById(id)
+        .populate({
+            path: "teams"
+        })
+        .then(data => {
+            if (!data) {
+                res.status(404).send({ message: "Not found Tournament with id " + id });
+            } else {
+                writePdf(pdf, data, res);
+                res.send();
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res
+                .status(500)
+                .send({ message: "Error retrieving Tournament with id=" + id });
+        });
+};
+
+const styles = {
+    pageWidth: 595.28,
+    pagePadding: 72,
+    margin: 5,
+    qrCodeWidth: 80
+};
+
+function writePdf(doc, data, res) {
+    doc.addPage();
+    doc.fontSize(24);
+    doc.text(`Turnierspielbogen`, {
+        align: "center"
+    });
+    const matchInfoBoxY = doc.currentLineHeight() + 16;
+
+    doc.fontSize(10);
+    const matchInfoColumn0Width = doc.widthOfString("Schiedsgericht");
+    const matchInfoColumn2Width = doc.widthOfString("Feld");
+    const matchInfoColumn3Width = doc.widthOfString("00");
+
+    doc.text("Team A", styles.pagePadding, styles.pagePadding + matchInfoBoxY);
+    doc.moveDown(0.3);
+    doc.text("Team B");
+    doc.moveDown(0.3);
+    doc.text("Schiedsgericht");
+
+    doc.text("Platzhalter", styles.pagePadding + matchInfoColumn0Width + styles.margin, styles.pagePadding + matchInfoBoxY);
+    doc.moveDown(0.3);
+    doc.text("Platzhalter");
+    doc.moveDown(0.3);
+    doc.text("Platzhalter");
+
+    doc.text("Gr", styles.pageWidth - (styles.pagePadding + styles.qrCodeWidth + matchInfoColumn3Width + matchInfoColumn2Width + styles.margin * 2), styles.pagePadding + matchInfoBoxY);
+    doc.moveDown(0.3);
+    doc.text("Feld");
+
+    doc.text("1", styles.pageWidth - (styles.pagePadding + styles.qrCodeWidth + matchInfoColumn3Width + styles.margin), styles.pagePadding + matchInfoBoxY);
+    doc.moveDown(0.3);
+    doc.text("A");
+
+    // close document
+    doc.pipe(res);
+    doc.end();
 }
