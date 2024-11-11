@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "mongoose": "^8.5.3",
+    "pdfkit": "^0.15.1",
     "react-router-dom": "^6.26.1"
   }
 }
