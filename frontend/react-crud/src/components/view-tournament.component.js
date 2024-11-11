@@ -127,6 +127,19 @@ class ViewTournament extends Component {
                 </div>
                 <div className="col-9">
                     <h4>Tournaments</h4>
+                    {tournament && tournament.phases && activePhase === -1 && (
+                        <>
+                            <div className="row">
+                                <div className="col">
+                                    <Link to={"http://127.0.0.1:8080/api/tournaments/" + tournament._id + "/pdf/" + tournament.name.trim().replaceAll(" ", "_")}>
+                                        <button className="btn btn-success">
+                                            Download Tournament PDF
+                                        </button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </>
+                    )}
                     {tournament && tournament.phases && activePhase >= 0 && tournament.phases[activePhase].groups.map((group, groupIndex) => (
                         <div className="group-container">
                         <div className="group-header">
