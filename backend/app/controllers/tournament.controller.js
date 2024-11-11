@@ -1,4 +1,5 @@
 const PDFDocument = require("pdfkit");
+const QRCode = require("qrcode");
 const db = require("../models");
 const Tournament = db.tournaments;
 
@@ -395,7 +396,7 @@ const styles = {
     pagePadding: 40,
     margin: 8,
     defaultFontSize: 15,
-    qrCodeWidth: 100,
+    qrCodeSize: 100,
     placeHolderBg: "#DCDCDC",
     teamNamePlaceHolder: {
         height: 0.6 * cm
@@ -410,11 +411,7 @@ const styles = {
     },
 };
 
-function teamPlaceHolder() {
-    return 
-}
-
-function writePdf(data, res) {
+async function writePdf(data, res) {
     const doc = new PDFDocument({
         size:"A4",
         autoFirstPage: false,
@@ -429,7 +426,7 @@ function writePdf(data, res) {
                 doc.addPage({margin: styles.pagePadding});
                 doc.fontSize(30);
                 doc.text(`Turnierspielbogen`, {
-                    width: styles.pageWidth - 2 * styles.pagePadding - styles.qrCodeWidth,
+                    width: styles.pageWidth - 2 * styles.pagePadding - styles.qrCodeSize,
                     align: "center"
                 });
                 const matchInfoBoxY = doc.currentLineHeight() + 16;
@@ -441,7 +438,7 @@ function writePdf(data, res) {
 
                 let x = styles.pagePadding;
                 let x1 = styles.pagePadding + matchInfoColumn0Width + styles.margin;
-                let x3 = styles.pageWidth - (styles.pagePadding + styles.qrCodeWidth + matchInfoColumn3Width + styles.margin * 2);
+                let x3 = styles.pageWidth - (styles.pagePadding + styles.qrCodeSize + matchInfoColumn3Width + styles.margin * 2);
                 let x2 = x3 - (matchInfoColumn2Width + styles.margin);
                 let y = styles.pagePadding + matchInfoBoxY;
                 let y1 = y + doc.currentLineHeight() + styles.margin;
@@ -468,8 +465,8 @@ function writePdf(data, res) {
                 // doc.text("A", x3, y1);
                 // doc.text("", x3, y2);
 
-                doc.rect(styles.pageWidth - styles.pagePadding - styles.qrCodeWidth, styles.pagePadding, styles.qrCodeWidth, styles.qrCodeWidth).fill("black");
-
+                doc.image(await QRCode.toDataURL("http://127.0.0.1:8081/matchs/" + match._id.toString()), styles.pageWidth - styles.pagePadding - styles.qrCodeSize, styles.pagePadding, {height: styles.qrCodeSize});
+                
                 // TODO replace hardcoded noOfSets
                 const noOfSets = 3;
                 const scoreTableWidth = doc.widthOfString("Teams") + 4 * styles.margin + 2 * styles.teamPlaceHolder.width;
