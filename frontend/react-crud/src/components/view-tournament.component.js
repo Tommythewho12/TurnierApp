@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import http from "../http-common";
 import { withRouter } from '../common/with-router';
 
 import TournamentDataService from "../services/tournament.service.js";
@@ -131,7 +132,7 @@ class ViewTournament extends Component {
                         <>
                             <div className="row">
                                 <div className="col">
-                                    <Link to={"http://127.0.0.1:8080/api/tournaments/" + tournament._id + "/pdf/" + tournament.name.trim().replaceAll(" ", "_")}>
+                                    <Link to={http.getUri() + "/tournaments/" + tournament._id + "/pdf/" + tournament.name.trim().replaceAll(" ", "_")}>
                                         <button className="btn btn-success">
                                             Download Tournament PDF
                                         </button>
