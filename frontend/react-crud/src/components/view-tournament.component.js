@@ -11,7 +11,8 @@ class ViewTournament extends Component {
 
         this.state = {
             // page controls
-            activePhase: -1,
+            activePhase: 0,
+            activeGroup: undefined,
 
             // data
             tournament: {}
@@ -74,6 +75,9 @@ class ViewTournament extends Component {
                             guestTeam.pointsSuffered += scoreHome;
                         });
                         
+                        match.homeSets = setsHome;
+                        match.guestSets = setsGuest;
+
                         // TODO fetch points from tournament settings
                         if (setsHome > setsGuest) {
                             homeTeam.score += 2;
@@ -114,15 +118,15 @@ class ViewTournament extends Component {
     }
 
     render() {
-        const { activePhase, tournament } = this.state;
+        const { activePhase, activeGroup, tournament } = this.state;
 
         return (
             <div className="row">
                 <div className="col-3">
                     <div className="list-group">
-                        <div className={"list-group-item list-group-item-action " + (activePhase === -1 ? "active" : "")} onClick={() => this.setState({activePhase: -1})}>Overview</div>
+                        <div className={"list-group-item list-group-item-action " + (activePhase === -1 ? "active" : "")} onClick={() => this.setState({activePhase: -1, activeGroup: undefined})}>Overview</div>
                         {tournament && tournament.phases && tournament.phases.map((phase, phaseIndex) =>
-                            <div className={"list-group-item list-group-item-action " + (activePhase === phaseIndex ? "active" : "")} onClick={() => this.setState({activePhase: phaseIndex})}>Phase { phaseIndex + 1 }</div>
+                            <div key={"phase-" + phase._id} className={"list-group-item list-group-item-action " + (activePhase === phaseIndex ? "active" : "")} onClick={() => this.setState({activePhase: phaseIndex, activeGroup: undefined})}>Phase { phaseIndex + 1 }</div>
                         )}
                     </div>
                 </div>
@@ -143,89 +147,74 @@ class ViewTournament extends Component {
                     )}
                     {tournament && tournament.phases && activePhase >= 0 && tournament.phases[activePhase].groups.map((group, groupIndex) => (
                         <div className="group-container">
-                        <div className="group-header">
-                        </div>
-                        <div className="group-body">
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Spiele</th>
-                                        <th>Siege</th>
-                                        <th>Niederlagen</th>
-                                        <th>Punkte</th>
-                                        <th>Punktdifferenz</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {group.teams != null && group.teams.map(team => (
+                            <div className="group-header">
+                            </div>
+                            <div className="group-body">
+                                <table className="table" onClick={() => {this.setState({activeGroup: groupIndex === activeGroup ? undefined : groupIndex})}}>
+                                    <thead>
                                         <tr>
-                                            <td>{team.name}</td>
-                                            <td>{team.matchs}</td>
-                                            <td>{team.wins}</td>
-                                            <td>{team.losss}</td>
-                                            <td>{team.score}</td>
-                                            <td>{team.pointsScored} : {team.pointsSuffered}</td>
+                                            <th></th>
+                                            <th>Spiele</th>
+                                            <th>Siege</th>
+                                            <th>Niederlagen</th>
+                                            <th>Punkte</th>
+                                            <th>Punktdifferenz</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            <div className="matches">
-                                {group.matchs && group.matchs.map(match => (
-                                    <div className="container match-container">
-                                        <div className={"row home-row " + (match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) > 0 && "winner")}>
-                                            <div className="col team-name-col">
-                                                <Link to={"/matchs/" + match._id}>
-                                                    {this.getTeamName(match.homeTeam)}
-                                                </Link>
-                                            </div>
-                                            <div className="col score-col winner-column">
-                                            </div>
-                                            {match.sets && match.sets.map(set => (
-                                                <div className="col set-score-col">
-                                                    {set.scoreHome}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className={"row guest-row " + (match.sets.reduce((c, v) => (v.scoreHome < v.scoreGuest ? ++c : --c), 0) > 0 && "winner")}>
-                                            <div className="col team-name-col">
-                                            {this.getTeamName(match.guestTeam)}
-                                            </div>
-                                            <div className="col score-col winner-column">
-                                            </div>
-                                            {match.sets && match.sets.map(set => (
-                                                <div className="col set-score-col">
-                                                    {set.scoreGuest}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="matches">
-                                {group.matchs && group.matchs.map(match => (
-                                    <div className="container match-container">
-                                        <table className="table home-row">
-                                        <tr className={((match.sets.reduce((c, v) => (v.scoreHome > v.scoreGuest ? ++c : --c), 0) > 0) ? "winner" : undefined)}>
-                                                <td>{this.getTeamName(match.homeTeam)}</td>
-                                                <td className="winner-column"></td>
-                                                {match.sets && match.sets.map(set => (
-                                                    <td>{set.scoreHome}</td>
-                                                ))}
+                                    </thead>
+                                    <tbody>
+                                        {group.teams != null && group.teams.map(team => (
+                                            <tr>
+                                                <td>{team.name}</td>
+                                                <td>{team.matchs}</td>
+                                                <td>{team.wins}</td>
+                                                <td>{team.losss}</td>
+                                                <td>{team.score}</td>
+                                                <td>{team.pointsScored} : {team.pointsSuffered}</td>
                                             </tr>
-                                            <tr className={((match.sets.reduce((c, v) => (v.scoreHome < v.scoreGuest ? ++c : --c), 0) > 0) ? "winner" : undefined)}>
-                                                <td>{this.getTeamName(match.guestTeam)}</td>
-                                                <td className="winner-column"></td>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                
+                                <div className="matches">
+                                        {group.matchs && activeGroup === groupIndex && group.matchs.map(match => (
+                                            <>
+                                                <div className="row align-items-center">
+                                                    <div className="col text-center text-truncate">
+                                                        <h3>
+                                                            <Link to={"/matchs/" + match._id}>
+                                                                {this.getTeamName(match.homeTeam)}
+                                                            </Link>
+                                                        </h3>
+                                                    </div>
+                                                    <div className="col-auto">
+                                                        <h2 className={(match.homeSets > match.guestSets ? "fw-bold" : "")}>{match.homeSets ? match.homeSets : 0}</h2>
+                                                    </div>
+                                                    <div className="col-auto score-divider">
+                                                        <h2>:</h2>
+                                                    </div>
+                                                    <div className="col-auto">
+                                                        <h2 className={(match.homeSets < match.guestSets ? "fw-bold" : "")}>{match.guestSets ? match.guestSets : 0}</h2>
+                                                    </div>
+                                                    <div className="col text-center text-truncate">
+                                                        <h3>
+                                                            {this.getTeamName(match.guestTeam)}
+                                                        </h3>
+                                                    </div>
+                                                </div>
                                                 {match.sets && match.sets.map(set => (
-                                                    <td>{set.scoreGuest}</td>
+                                                    <div className="row">
+                                                        <div className="col text-center">
+                                                            <h4>
+                                                                {set.scoreHome ? set.scoreHome : 0} : {set.scoreGuest ? set.scoreGuest : 0}
+                                                            </h4>
+                                                        </div>
+                                                    </div>
                                                 ))}
-                                            </tr>
-                                        </table>
-                                    </div>
-                                ))}
+                                            </>
+                                        ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
                     ))}
                 </div>
             </div>

@@ -32,7 +32,10 @@
   color: var(--missing-content-text-color);
 }
 
-.winner > .winner-column::before {
-  content: "W";
-  color: aqua;
+div.matches {
+  margin-bottom: 20px;
+}
+
+div.score-divider {
+  padding: 0
 }
