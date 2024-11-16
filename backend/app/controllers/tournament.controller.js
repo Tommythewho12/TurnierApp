@@ -159,7 +159,9 @@ exports.findMatch = (req, res) => {
         .match({ "phases.groups.matchs._id": db.mongoose.Types.ObjectId.createFromHexString(matchId) })
         .project({
             phaseId: "$phases._id",
+            phaseOrder: "$phases.order",
             groupId: "$phases.groups._id",
+            groupOrder: "$phases.groups.order",
             match: {
                 _id: "$phases.groups.matchs._id",
                 order: "$phases.groups.matchs.order",
