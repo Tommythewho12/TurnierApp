@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { ArrowLeftRight } from "react-bootstrap-icons";
 import TournamentDataService from "../services/tournament.service.js";
 import { withRouter } from '../common/with-router';
 
@@ -14,14 +15,15 @@ class EditMatch extends Component {
 
         this.state = {
             // page controls
-            activePhase: 0,
-            lastScored: 0,
+            flippedView: false,
 
             // data
             homeTeamId: "",
             guestTeamId: "",
             homeTeamName: "",
             guestTeamName: "",
+            homeTeamSets: 0,
+            guestTeamSets: 0,
             sets: undefined,
             concluded: undefined
         };
@@ -45,9 +47,11 @@ class EditMatch extends Component {
                 this.groupOrder = response.data.groupOrder;
                 this.matchOrder = response.data.match.order;
                 let homeTeamSets = 0, guestTeamSets = 0;
-                match.sets.forEach(e => {
-                    if (e.scoreHome > e.scoreGuest) homeTeamSets++;
-                    else if (e.scoreHome < e.scoreGuest) guestTeamSets++;
+                match.sets.forEach(set => {
+                    if (set.concluded) {
+                        if (set.scoreHome > set.scoreGuest) homeTeamSets++;
+                        else if (set.scoreHome < set.scoreGuest) guestTeamSets++;
+                    }
                 });
                 this.setState({
                     homeTeamId: match.homeTeam._id,
@@ -65,20 +69,24 @@ class EditMatch extends Component {
             });
     }
 
-    increaseScoreHome() { // TODO persist data
+    increaseScoreHome() { 
         const newSets = [...this.state.sets];
         newSets[newSets.length - 1].scoreHome++;
         this.setState({
             sets: newSets
         });
+
+        this.updateSet();
     }
 
-    increaseScoreGuest() { // TODO persist data
+    increaseScoreGuest() {
         const newSets = [...this.state.sets];
         newSets[newSets.length - 1].scoreGuest++;
         this.setState({
             sets: newSets
         });
+
+        this.updateSet();
     }
 
     addSet() {
@@ -105,6 +113,12 @@ class EditMatch extends Component {
         newSets[newSets.length - 1].concluded = true;
         this.setState({ sets: newSets });
 
+        if (newSets[newSets.length - 1].scoreHome > newSets[newSets.length - 1].scoreGuest) {
+            this.setState({homeTeamSets: this.state.homeTeamSets+1});
+        } else if (newSets[newSets.length - 1].scoreHome < newSets[newSets.length - 1].scoreGuest) {
+            this.setState({guestTeamSets: this.state.guestTeamSets+1});
+        }
+        
         this.updateSet();
     }
 
@@ -149,7 +163,7 @@ class EditMatch extends Component {
     }
 
     render() {
-        const { homeTeamName, guestTeamName, homeTeamSets, guestTeamSets, sets, concluded } = this.state;
+        const { flippedView, homeTeamName, guestTeamName, homeTeamSets, guestTeamSets, sets, concluded } = this.state;
 
         return (
             <div className="container text-center">
@@ -160,21 +174,28 @@ class EditMatch extends Component {
                     <h3>Match {this.phaseOrder}-{this.groupOrder}-{this.matchOrder}</h3>
                 </div>
                 <div className="row align-items-center">
-                    <div className="col text-center text-truncate">
+                    <div>
+                        <button className="btn btn-info" onClick={() => this.setState({flippedView: !this.state.flippedView})}>
+                            {flippedView ? <>B <ArrowLeftRight /> A</> : <>A <ArrowLeftRight /> B</>}
+                        </button>
+                    </div>
+                </div>
+                <div className="row align-items-center">
+                    <div className={"col text-center text-truncate " + (flippedView ? "order-last" : "order-first")}>
                         <h3>
                             {homeTeamName}
                         </h3>
                     </div>
                     <div className="col-auto">
-                        <h1 className={(homeTeamSets > guestTeamSets && concluded ? "fw-bold" : "")}>{homeTeamSets ? homeTeamSets : 0}</h1>
+                        <h1 className={(homeTeamSets > guestTeamSets && concluded ? "fw-bold" : "")}>{flippedView ? guestTeamSets : homeTeamSets}</h1>
                     </div>
                     <div className="col-auto score-divider">
                         <h2>:</h2>
                     </div>
                     <div className="col-auto">
-                        <h1 className={(homeTeamSets < guestTeamSets && concluded ? "fw-bold" : "")}>{guestTeamSets ? guestTeamSets : 0}</h1>
+                        <h1 className={(homeTeamSets < guestTeamSets && concluded ? "fw-bold" : "")}>{flippedView ? homeTeamSets : guestTeamSets}</h1>
                     </div>
-                    <div className="col text-center text-truncate">
+                    <div className={"col text-center text-truncate " + (flippedView ? "order-first" : "order-last")}>
                         <h3>
                             {guestTeamName}
                         </h3>
@@ -182,7 +203,7 @@ class EditMatch extends Component {
                 </div>
                 {sets && sets.length > 0 && sets.map((set, setIndex) => (
                     <div className="row justify-content-center">
-                        <div className="col">
+                        <div className={"col " + (flippedView ? "order-last" : "order-first")}>
                             <h2>
                                 {set.scoreHome}
                             </h2>
@@ -191,7 +212,7 @@ class EditMatch extends Component {
                         <div className="col-auto">
                             <h5>Set {setIndex+1}</h5>
                         </div>
-                        <div className="col">
+                        <div className={"col " + (flippedView ? "order-first" : "order-last")}>
                             <h2>
                                 {set.scoreGuest}
                             </h2>
