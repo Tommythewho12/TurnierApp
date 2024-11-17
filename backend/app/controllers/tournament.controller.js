@@ -267,7 +267,7 @@ function getTeamsRanked(tournamentDoc, phaseOrder, groupOrder) {
             guestTeam.score += 2;
         } else {
             homeTeam.score += 1;
-            homeGuest.score += 1;
+            guestTeam.score += 1;
         }
     });
 
@@ -467,8 +467,8 @@ async function writePdf(data, res) {
                 // doc.text("A", x3, y1);
                 // doc.text("", x3, y2);
 
-                // doc.image(await QRCode.toDataURL("http://localhost:8081/matchs/" + match._id.toString()), styles.pageWidth - styles.pagePadding - styles.qrCodeSize, styles.pagePadding, {height: styles.qrCodeSize});
-                doc.image(await QRCode.toDataURL("http://94.114.43.121:80/matchs/" + match._id.toString()), styles.pageWidth - styles.pagePadding - styles.qrCodeSize, styles.pagePadding, {height: styles.qrCodeSize});
+                doc.image(await QRCode.toDataURL("http://192.168.0.154:8081/matchs/" + match._id.toString()), styles.pageWidth - styles.pagePadding - styles.qrCodeSize, styles.pagePadding, {height: styles.qrCodeSize});
+                // doc.image(await QRCode.toDataURL("http://94.114.43.121:80/matchs/" + match._id.toString()), styles.pageWidth - styles.pagePadding - styles.qrCodeSize, styles.pagePadding, {height: styles.qrCodeSize});
                 
                 // TODO replace hardcoded noOfSets
                 const noOfSets = 3;
