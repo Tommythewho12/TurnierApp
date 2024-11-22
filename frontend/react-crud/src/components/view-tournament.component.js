@@ -11,7 +11,7 @@ class ViewTournament extends Component {
 
         this.state = {
             // page controls
-            activePhase: 0,
+            activePhase: undefined,
             activeGroup: undefined,
 
             // data
@@ -29,6 +29,7 @@ class ViewTournament extends Component {
                 console.log(response.data);
                 this.setState({
                     tournament: response.data
+                    
                 });
                 this.enrichTeamStats(response.data);
             })
@@ -38,7 +39,12 @@ class ViewTournament extends Component {
     }
 
     enrichTeamStats(tournament) {
+        let startPhase = tournament.phases.length - 1;
         tournament.phases.forEach((phase, phaseIndex, phases) => {
+            if (phase.concluded) {
+                startPhase = (phaseIndex + 1 > phases.length) ? phases.length : phaseIndex + 1;
+            }
+
             phase.groups.forEach((group, groupIndex, groups) => {
                 if (group.teams != undefined && group.teams.length > 0) {
                     group.teams = group.teams.map((team, teamIndex) => (
@@ -98,7 +104,12 @@ class ViewTournament extends Component {
             });
         });
 
-        this.setState({tournament: tournament});
+
+
+        this.setState({
+            activePhase: startPhase,
+            tournament: tournament
+        });
     }
 
     getTeamName(teamId) {
