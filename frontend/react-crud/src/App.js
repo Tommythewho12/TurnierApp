@@ -28,11 +28,6 @@ class App extends Component {
               </Link>
             </li>
             <li className="nav-item">
-              <Link to={"/tutorials"} className="nav-link">
-                Tutorials
-              </Link>
-            </li>
-            <li className="nav-item">
               <Link to={"/teams"} className="nav-link">
                 Teams
               </Link>
@@ -40,11 +35,6 @@ class App extends Component {
             <li className="nav-item">
               <Link to={"/add"} className="nav-link">
                 Add Team
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to={"/matchs"} className="nav-link">
-                Edit Match
               </Link>
             </li>
           </div>
@@ -57,9 +47,6 @@ class App extends Component {
             <Route path="/tournaments" element={<ListTournaments />} />
             <Route path="/tournaments/new" element={<CreateTournaments />} />
             <Route path="/tournaments/:id" element={<ViewTournament />} />
-
-            <Route path="/tutorials" element={<TutorialsList />} />
-            <Route path="/tutorials/:id" element={<Tutorial />} />
 
             <Route path="/add" element={<AddTeam />} />
             <Route path="/teams" element={<TeamsList />} />
