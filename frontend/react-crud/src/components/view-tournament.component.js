@@ -102,10 +102,10 @@ class ViewTournament extends Component {
                         }
                     }
                 });
+                group.teams.sort((a,b) => b.pointsScored - b.pointsSuffered - (a.pointsScored - a.pointsSuffered));
+                group.teams.sort((a,b) => b.score - a.score);
             });
         });
-
-
 
         this.setState({
             activePhase: startPhase,
