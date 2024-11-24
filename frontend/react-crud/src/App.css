@@ -44,3 +44,35 @@ div.score-divider {
   opacity: 0.3;
   font-style: italic;
 }
+
+div.score-table {
+  font-size: large;
+}
+
+div.score-table > * > div {
+  margin-bottom: 0.8em;
+}
+
+div.score-table > * > div.table-header {
+  font-weight: bold;
+}
+
+div.score-table > div.name > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.score-table > div.matchs,
+div.score-table > div.wins,
+div.score-table > div.losses,
+div.score-table > div.points,
+div.score-table > div.point-difference {
+  text-align: center;
+}
+
+.fs-sets {
+  font-size: smaller;
+  font-style: italic;
+  color: gray;
+}

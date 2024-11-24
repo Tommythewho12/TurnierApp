@@ -4,6 +4,7 @@ import http from "../http-common";
 import { withRouter } from '../common/with-router';
 
 import TournamentDataService from "../services/tournament.service.js";
+import ScoreTableGroup from "./score-table-group.component.js";
 
 class ViewTournament extends Component {
     constructor(props) {
@@ -39,7 +40,7 @@ class ViewTournament extends Component {
     }
 
     enrichTeamStats(tournament) {
-        let startPhase = tournament.phases.length - 1;
+        let startPhase = 0;
         tournament.phases.forEach((phase, phaseIndex, phases) => {
             if (phase.concluded) {
                 startPhase = (phaseIndex + 1 > phases.length) ? phases.length : phaseIndex + 1;
@@ -132,103 +133,48 @@ class ViewTournament extends Component {
         const { activePhase, activeGroup, tournament } = this.state;
 
         return (
-            <div className="row">
-                <div className="col-3">
-                    <div className="list-group">
-                        <div className={"list-group-item list-group-item-action " + (activePhase === -1 ? "active" : "")} onClick={() => this.setState({activePhase: -1, activeGroup: undefined})}>Overview</div>
-                        {tournament && tournament.phases && tournament.phases.map((phase, phaseIndex) =>
-                            <div key={"phase-" + phase._id} className={"list-group-item list-group-item-action " + (activePhase === phaseIndex ? "active" : "")} onClick={() => this.setState({activePhase: phaseIndex, activeGroup: undefined})}>Phase { phaseIndex + 1 }</div>
-                        )}
+            <>
+                <div className="row mb-3">
+                    <div className="col-3"></div>
+                    <div className="col-9">
+                        <h1>{tournament.name}</h1>
                     </div>
                 </div>
-                <div className="col-9">
-                    <h4>Tournaments</h4>
-                    {tournament && tournament.phases && activePhase === -1 && (
-                        <>
-                            <div className="row">
-                                <div className="col">
-                                    <Link to={http.getUri() + "/tournaments/" + tournament._id + "/pdf/" + tournament.name.trim().replaceAll(" ", "_")}>
-                                        <button className="btn btn-success">
-                                            Download Tournament PDF
-                                        </button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </>
-                    )}
-                    {tournament && tournament.phases && activePhase >= 0 && tournament.phases[activePhase].groups.map((group, groupIndex) => (
-                        <div className="group-container">
-                            <div className="group-header">
-                            </div>
-                            <div className="group-body">
-                                <table className="table" onClick={() => {this.setState({activeGroup: groupIndex === activeGroup ? undefined : groupIndex})}}>
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Spiele</th>
-                                            <th>Siege</th>
-                                            <th>Niederlagen</th>
-                                            <th>Punkte</th>
-                                            <th>Punktdifferenz</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {group.teams != null && group.teams.map(team => (
-                                            <tr>
-                                                <td>{team.name}</td>
-                                                <td>{team.matchs}</td>
-                                                <td>{team.wins}</td>
-                                                <td>{team.losss}</td>
-                                                <td>{team.score}</td>
-                                                <td>{team.pointsScored} : {team.pointsSuffered}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                
-                                <div className="matches">
-                                        {group.matchs && activeGroup === groupIndex && group.matchs.map(match => (
-                                            <>
-                                                <div className="row align-items-center">
-                                                    <div className="col text-center text-truncate">
-                                                        <h3>
-                                                            <Link to={"/matchs/" + match._id}>
-                                                                {this.getTeamName(match.homeTeam)}
-                                                            </Link>
-                                                        </h3>
-                                                    </div>
-                                                    <div className="col-auto">
-                                                        <h2 className={(match.homeSets > match.guestSets ? "fw-bold" : "")}>{match.homeSets ? match.homeSets : 0}</h2>
-                                                    </div>
-                                                    <div className="col-auto score-divider">
-                                                        <h2>:</h2>
-                                                    </div>
-                                                    <div className="col-auto">
-                                                        <h2 className={(match.homeSets < match.guestSets ? "fw-bold" : "")}>{match.guestSets ? match.guestSets : 0}</h2>
-                                                    </div>
-                                                    <div className="col text-center text-truncate">
-                                                        <h3>
-                                                            {this.getTeamName(match.guestTeam)}
-                                                        </h3>
-                                                    </div>
-                                                </div>
-                                                {match.sets && match.sets.map(set => (
-                                                    <div className="row">
-                                                        <div className="col text-center">
-                                                            <h4>
-                                                                {set.scoreHome ? set.scoreHome : 0} : {set.scoreGuest ? set.scoreGuest : 0}
-                                                            </h4>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </>
-                                        ))}
-                                </div>
-                            </div>
+                <div className="row">
+                    <div className="col-3">
+                        <div className="list-group">
+                            <div className={"list-group-item list-group-item-action " + (activePhase === -1 ? "active" : "")} onClick={() => this.setState({activePhase: -1, activeGroup: undefined})}>Overview</div>
+                            {tournament && tournament.phases && tournament.phases.map((phase, phaseIndex) =>
+                                <div key={"phase-" + phase._id} className={"list-group-item list-group-item-action " + (activePhase === phaseIndex ? "active" : "")} onClick={() => this.setState({activePhase: phaseIndex, activeGroup: undefined})}>Phase { phaseIndex + 1 }</div>
+                            )}
                         </div>
-                    ))}
+                    </div>
+                    <div className="col-9">
+                        {tournament && tournament.phases && activePhase === -1 && (
+                            <>
+                                <div className="row">
+                                    <div className="col">
+                                        <Link to={http.getUri() + "/tournaments/" + tournament._id + "/pdf/" + tournament.name.trim().replaceAll(" ", "_")}>
+                                            <button className="btn btn-success">
+                                                Download Tournament PDF
+                                            </button>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                        {tournament && tournament.phases && activePhase >= 0 && tournament.phases[activePhase].groups.map((group, groupIndex) => (
+                            <div key={"phase-" + activePhase + "-group-" + groupIndex} className="group-container mb-4">
+                                <div className="group-header">
+                                </div>
+                                <div className="group-body">
+                                    <ScoreTableGroup group={group} teams={tournament.teams}/>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 }
