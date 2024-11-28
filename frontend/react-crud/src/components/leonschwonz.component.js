@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { withRouter } from '../common/with-router.js';
+
+
 import leon from '../images/Leon.jpg'
+import MatchOrderEditor from "./match-order-editor.component.js";
 
 class Leonschwonz extends Component {
     constructor(props) {
@@ -14,6 +17,7 @@ class Leonschwonz extends Component {
                 <row><img src={leon} /></row>
                 <row><p>Man sagt: "du bist was du isst."</p></row>
                 <row><h1>Hallo, mein Name ist Leon und ich bin ein Arsch ;)</h1></row>
+                <MatchOrderEditor data={[1,2,3]}/>
             </div>
         );
     }

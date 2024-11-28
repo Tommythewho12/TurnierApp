@@ -5,6 +5,7 @@ import { withRouter } from '../common/with-router';
 
 import TournamentDataService from "../services/tournament.service.js";
 import ScoreTableGroup from "./score-table-group.component.js";
+import MatchOrderEditor from "./match-order-editor.component.js";
 
 class ViewTournament extends Component {
     constructor(props) {
@@ -13,10 +14,10 @@ class ViewTournament extends Component {
         this.state = {
             // page controls
             activePhase: undefined,
-            activeGroup: undefined,
 
             // data
-            tournament: {}
+            tournament: {},
+            matchs: []
         };
     }
 
@@ -30,7 +31,6 @@ class ViewTournament extends Component {
                 console.log(response.data);
                 this.setState({
                     tournament: response.data
-                    
                 });
                 this.enrichTeamStats(response.data);
             })
@@ -41,6 +41,7 @@ class ViewTournament extends Component {
 
     enrichTeamStats(tournament) {
         let startPhase = 0;
+        const matchss = [];
         tournament.phases.forEach((phase, phaseIndex, phases) => {
             if (phase.concluded) {
                 startPhase = (phaseIndex + 1 > phases.length) ? phases.length : phaseIndex + 1;
@@ -62,6 +63,7 @@ class ViewTournament extends Component {
                         }));
                 }
                 group.matchs.forEach((match, matchIndex, matchs) => {
+                    matchss.push({id: match._id, order: match.order, phase: phaseIndex, group: groupIndex, home: match.homeTeam, guest: match.guestTeam});
                     if (match.concluded) { // TODO this will not allow to see live results / allow only finished results
                         const homeTeam = group.teams.find(t => t._id === match.homeTeam);
                         const guestTeam = group.teams.find(t => t._id === match.guestTeam);
@@ -106,10 +108,12 @@ class ViewTournament extends Component {
                 group.teams.sort((a,b) => b.score - a.score);
             });
         });
+        matchss.sort((a,b) => a.order - b.order);
 
         this.setState({
             activePhase: startPhase,
-            tournament: tournament
+            tournament: tournament,
+            matches: matchss
         });
     }
 
@@ -130,7 +134,7 @@ class ViewTournament extends Component {
     }
 
     render() {
-        const { activePhase, activeGroup, tournament } = this.state;
+        const { activePhase, tournament, matches } = this.state;
 
         return (
             <>
@@ -143,14 +147,15 @@ class ViewTournament extends Component {
                 <div className="row">
                     <div className="col-3">
                         <div className="list-group">
-                            <div className={"list-group-item list-group-item-action " + (activePhase === -1 ? "active" : "")} onClick={() => this.setState({activePhase: -1, activeGroup: undefined})}>Overview</div>
+                            <div className={"list-group-item list-group-item-action " + (activePhase === "settings" ? "active" : "")} onClick={() => this.setState({activePhase: "settings", activeGroup: undefined})}>Settings</div>
+                            <div className={"list-group-item list-group-item-action " + (activePhase === "matchOrder" ? "active" : "")} onClick={() => this.setState({activePhase: "matchOrder", activeGroup: undefined})}>Match Order</div>
                             {tournament && tournament.phases && tournament.phases.map((phase, phaseIndex) =>
                                 <div key={"phase-" + phase._id} className={"list-group-item list-group-item-action " + (activePhase === phaseIndex ? "active" : "")} onClick={() => this.setState({activePhase: phaseIndex, activeGroup: undefined})}>Phase { phaseIndex + 1 }</div>
                             )}
                         </div>
                     </div>
                     <div className="col-9">
-                        {tournament && tournament.phases && activePhase === -1 && (
+                        {tournament && tournament.phases && activePhase === "settings" && (
                             <>
                                 <div className="row">
                                     <div className="col">
@@ -163,12 +168,42 @@ class ViewTournament extends Component {
                                 </div>
                             </>
                         )}
-                        {tournament && tournament.phases && activePhase >= 0 && tournament.phases[activePhase].groups.map((group, groupIndex) => (
+                        {tournament && tournament.phases && activePhase === "matchOrder" && (
+                            <>
+                                <div className="row">
+                                    <h1>Match Order</h1>
+                                </div>
+                                <div className="row">
+                                    <div className="col-1">
+                                        Order
+                                    </div>
+                                    <div className="col-1">
+                                        Phase
+                                    </div>
+                                    <div className="col-1">
+                                        Group
+                                    </div>
+                                    <div className="col-3">
+                                        Home Team
+                                    </div>
+                                    <div className="col-3">
+                                        Guest Team
+                                    </div>
+                                </div>
+                                
+                                <MatchOrderEditor data={
+                                    matches
+                                    // [{id: 1, name:"asdf"},{id: 2, name:"yxcv"},{id: 3, name:"qwer"}]
+                                    // [1,2,3]
+                                }/>
+                            </>
+                        )}
+                        {tournament && tournament.phases && typeof activePhase === "number" && tournament.phases[activePhase].groups.map((group, groupIndex) => (
                             <div key={"phase-" + activePhase + "-group-" + groupIndex} className="group-container mb-4">
                                 <div className="group-header">
                                 </div>
                                 <div className="group-body">
-                                    <ScoreTableGroup group={group} teams={tournament.teams}/>
+                                    <ScoreTableGroup group={group} teams={tournament.teams} getTeamName={this.getTeamName} />
                                 </div>
                             </div>
                         ))}
