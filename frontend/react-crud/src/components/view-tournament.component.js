@@ -10,6 +10,7 @@ import MatchOrderEditor from "./match-order-editor.component.js";
 class ViewTournament extends Component {
     constructor(props) {
         super(props);
+        this.getTeamName = this.getTeamName.bind(this);
 
         this.state = {
             // page controls
@@ -166,6 +167,12 @@ class ViewTournament extends Component {
                                         </Link>
                                     </div>
                                 </div>
+                                <div className="row">
+                                    <div className="col-3">
+                                        <label htmlFor="inputNoOfFields" className="form-label">Number of Fields</label>
+                                        <input type="number" className="form-control" id="noOfFields" disabled value={tournament.noOfFields} />
+                                    </div>
+                                </div>
                             </>
                         )}
                         {tournament && tournament.phases && activePhase === "matchOrder" && (
@@ -193,8 +200,6 @@ class ViewTournament extends Component {
                                 
                                 <MatchOrderEditor data={
                                     matches
-                                    // [{id: 1, name:"asdf"},{id: 2, name:"yxcv"},{id: 3, name:"qwer"}]
-                                    // [1,2,3]
                                 }/>
                             </>
                         )}

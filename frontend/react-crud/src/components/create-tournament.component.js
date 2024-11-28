@@ -18,6 +18,7 @@ export default class CreateTournaments extends Component {
             // editing values
             tournament: {
                 name: "",
+                noOfFields: 1,
                 teams: [],
                 phases: []
             }
@@ -50,6 +51,10 @@ export default class CreateTournaments extends Component {
 
     updateTournamentName(input) {
         this.setState({ tournament: { ...this.state.tournament, name: input } });
+    }
+
+    updateTournamentNoOfFields(value) {
+        this.setState({ tournament: {...this.state.tournament, noOfFields: value }});
     }
 
     updateTournamentTeams(teamId) {
@@ -165,12 +170,14 @@ export default class CreateTournaments extends Component {
         let phaseIndex = 0;
         let matchOrder = 0;
         for (let phase of updatedTournament.phases) {
+            let groupIndex = 0;
             for (let group of phase.groups) {
                 const noOfTeams = Number(group.teams.length);
                 // create matches for every team to play vs each other once
                 for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
                     group.matchs.push({
                         order: matchOrder++,
+                        field: (groupIndex % updatedTournament.noOfFields) + 1,
                         homeTeam: phaseIndex === 0 ? group.teams[i % noOfTeams] : null,
                         guestTeam: phaseIndex === 0 ? group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams] : null
                     });
@@ -193,7 +200,7 @@ export default class CreateTournaments extends Component {
     render() {
         const finalStage = this.creationStages;
         const { allTeams, stage, unavailableTeams, tournament } = this.state;
-        const { name, phases, teams: tournamentTeams } = tournament;
+        const { name, noOfFields, phases, teams: tournamentTeams } = tournament;
 
         return (
             <div className="row">
@@ -215,6 +222,16 @@ export default class CreateTournaments extends Component {
                                         required
                                         value={name}
                                         onChange={v => this.updateTournamentName(v.target.value)} />
+                                    <label>Number of Fields</label>
+                                    <input
+                                        className="form-control"
+                                        type="number"
+                                        id="noOfFields"
+                                        required
+                                        min={1}
+                                        value={noOfFields}
+                                        onChange={v => this.updateTournamentNoOfFields(v.target.value)}
+                                    />
                                 </>
                             )}
                             {stage === 1 && (

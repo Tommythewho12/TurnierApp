@@ -14,6 +14,7 @@ module.exports = mongoose => {
 
     const MatchSchema = new mongoose.Schema({
         order: Number,
+        field: Number,
         homeTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
         guestTeam: { type: mongoose.Schema.Types.ObjectId, ref: "team" },
         sets: [ SetSchema ],
@@ -39,6 +40,7 @@ module.exports = mongoose => {
         mongoose.Schema(
             {
                 name: String,
+                noOfFields: Number,
                 teams: [{ type: mongoose.Schema.Types.ObjectId, ref: "team" }],
                 phases: [ PhaseSchema ]
             }

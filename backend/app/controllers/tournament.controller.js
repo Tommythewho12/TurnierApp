@@ -15,6 +15,7 @@ exports.create = (req, res) => {
     // Create a Tournament
     const tournament = new Tournament({
         name: req.body.name,
+        noOfFields: req.body.noOfFields,
         teams: req.body.teams,
         phases: req.body.phases
     });
