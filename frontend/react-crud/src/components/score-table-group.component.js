@@ -7,13 +7,14 @@ export default class ScoreTableGroup extends Component {
         super(props);
         this.group = props.group;
         this.teams = props.teams;
+        this.getTeamName = props.getTeamName;
 
         this.state = {
             selected: false
         }
     }
 
-    getTeamName(teamId) {
+    getTeamName2(teamId) {
         return teamId != undefined ? this.teams.find(t => t._id === teamId).name : "n/a";
     }
 

@@ -5,6 +5,7 @@ import TournamentDataService from "../services/tournament.service.js";
 export default class CreateTournaments extends Component {
     constructor(props) {
         super(props);
+        this.creationStages = 3;
 
         this.state = {
             // static values
@@ -162,13 +163,14 @@ export default class CreateTournaments extends Component {
     createTournament() {
         const updatedTournament = this.state.tournament;
         let phaseIndex = 0;
+        let matchOrder = 0;
         for (let phase of updatedTournament.phases) {
             for (let group of phase.groups) {
                 const noOfTeams = Number(group.teams.length);
                 // create matches for every team to play vs each other once
                 for (let i = 0; i < noOfTeams * (noOfTeams - 1) / 2; i++) {
                     group.matchs.push({
-                        order: i,
+                        order: matchOrder++,
                         homeTeam: phaseIndex === 0 ? group.teams[i % noOfTeams] : null,
                         guestTeam: phaseIndex === 0 ? group.teams[(i + Math.floor(i / noOfTeams) + 1) % noOfTeams] : null
                     });
@@ -189,7 +191,7 @@ export default class CreateTournaments extends Component {
     }
 
     render() {
-        const finalStage = 3; // TODO: fetch this value from outside render(). Possible?
+        const finalStage = this.creationStages;
         const { allTeams, stage, unavailableTeams, tournament } = this.state;
         const { name, phases, teams: tournamentTeams } = tournament;
 
